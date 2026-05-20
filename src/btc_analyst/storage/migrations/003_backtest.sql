@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS backtest_runs (id INTEGER PRIMARY KEY AUTOINCREMENT, started_at INTEGER NOT NULL, finished_at INTEGER, config_json TEXT NOT NULL, git_sha TEXT, period_start TEXT NOT NULL, period_end TEXT NOT NULL, metrics_json TEXT, notes TEXT);
+CREATE TABLE IF NOT EXISTS backtest_trades (id INTEGER PRIMARY KEY AUTOINCREMENT, run_id INTEGER NOT NULL REFERENCES backtest_runs(id), entry_ts INTEGER NOT NULL, exit_ts INTEGER NOT NULL, direction TEXT NOT NULL, entry_price REAL NOT NULL, exit_price REAL NOT NULL, stop_price REAL NOT NULL, realised_r REAL NOT NULL, weekday INTEGER NOT NULL, regime TEXT NOT NULL, zone_score REAL NOT NULL, factors_json TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_bt_trades_run ON backtest_trades(run_id);

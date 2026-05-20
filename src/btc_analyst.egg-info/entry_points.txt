@@ -1,0 +1,2 @@
+[console_scripts]
+btc-analyst = btc_analyst.cli:cli

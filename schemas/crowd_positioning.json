@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Crowd Positioning Updated",
+  "type": "object",
+  "required": ["ts", "aggregate_label", "extreme_flag", "sources_available_json"],
+  "properties": {
+    "ts": {"type": "integer"},
+    "bybit_funding_8h": {"type": ["number", "null"]},
+    "bybit_oi_24h_delta_pct": {"type": ["number", "null"]},
+    "bybit_long_short_ratio": {"type": ["number", "null"]},
+    "okx_long_short_ratio": {"type": ["number", "null"]},
+    "coinglass_funding_aggregate": {"type": ["number", "null"]},
+    "coinglass_oi_aggregate": {"type": ["number", "null"]},
+    "coinglass_long_short_aggregate": {"type": ["number", "null"]},
+    "coinglass_liquidations_24h_long_usd": {"type": ["number", "null"]},
+    "coinglass_liquidations_24h_short_usd": {"type": ["number", "null"]},
+    "fear_greed_value": {"type": ["integer", "null"]},
+    "fear_greed_label": {"type": ["string", "null"]},
+    "reddit_sentiment_score": {"type": ["number", "null"]},
+    "btc_dominance_pct": {"type": ["number", "null"]},
+    "aggregate_label": {
+      "type": "string",
+      "enum": ["extreme_long_crowd", "extreme_short_crowd", "mild_long", "mild_short", "neutral"]
+    },
+    "extreme_flag": {"type": "integer", "enum": [0, 1]},
+    "sources_available_json": {"type": "string"}
+  }
+}

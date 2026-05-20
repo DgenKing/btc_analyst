@@ -1,0 +1,149 @@
+data:
+  primary_venue: binance_perp
+  derivatives_venue: hyperliquid_perp
+  symbol: BTCUSDT
+  spot_venue: binance_spot
+  timeframes: ["1h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
+  history_days: 1825
+  ws_reconnect_seconds: 5
+
+indicators:
+  rsi_length: 14
+  macd: [12, 26, 9]
+  atr_length: 14
+  smas_1h: [20, 50, 200]
+  smas_4h: [20, 50, 200]
+  smas_8h: [20, 50, 200]
+  smas_daily: [20, 50, 100, 200]
+  smas_weekly: [20, 50, 200]
+
+zones:
+  horizontal:
+    pivot_lookback_daily: 5
+    pivot_lookback_intraday: 3
+    cluster_atr_fraction: 0.3
+    recency_decay_days_daily: 90
+    recency_decay_days_4h: 14
+  volume_profile:
+    daily_window_days: 30
+    daily_bins: 50
+    weekly_window_weeks: 12
+    weekly_bins: 100
+    cycle_bins: 200
+    hvn_multiplier: 1.5
+    lvn_multiplier: 0.5
+  ma_cluster_proximity_pct: 0.5
+  trendline:
+    min_touches: 3
+    min_r2: 0.85
+    max_slope_degrees: 60
+
+scoring:
+  weights:
+    horizontal_sr: 25
+    volume_profile: 20
+    market_structure: 15
+    ma_confluence: 10
+    trendline: 8
+    liquidity: 7
+    rsi_confirmation: 5
+    macd_confirmation: 4
+    funding_extreme: 3
+    oi_delta: 3
+    cme_gap: 6
+    liquidation_cluster_alignment: 3
+  multipliers:
+    trend_with: 1.15
+    trend_against: 0.85
+    range_edge: 1.10
+    range_mid: 0.70
+    weekend: 0.85
+    sunday_monday_tuesday: 1.10
+    friday_saturday: 0.85
+  tier_thresholds:
+    strong: 70
+    medium: 50
+    weak: 30
+  session_quality_weight: 5
+
+setups:
+  min_rr_t1: 1.5
+  atr_daily_max_pct: 5.0
+  atr_daily_min_pct: 1.0
+  atr_dead_market_days: 5
+  funding_extreme_threshold: 0.0005
+  stop_buffer_atr_4h: 0.25
+  reaction_proximity_pct: 0.35
+  rejection_wick_ratio_min: 1.2
+  tiering:
+    enabled: true
+    a_required_factors: 3
+    b_required_factors: 2
+    b_unlock_after_no_a_4h_bars: 2
+    risk_multiplier:
+      a: 1.0
+      b: 0.5
+      c: 0.0
+
+alerts:
+  strong_tier_to_telegram: true
+  medium_tier_to_telegram: false
+  dedupe_window_minutes: 60
+
+reports:
+  daily_time_utc: "12:00"
+  output_dir: "./reports"
+  chart_format: "png"
+  chart_dpi: 120
+
+telegram:
+  enabled: false
+  chat_id_env: TELEGRAM_CHAT_ID
+  bot_token_env: TELEGRAM_BOT_TOKEN
+
+logging:
+  level: INFO
+  file: ./logs/btc_analyst.log
+  rotate_mb: 50
+  keep_files: 10
+
+monitoring:
+  interval_minutes: 15
+  crowd_interval_minutes: 5
+  heatmap_interval_minutes: 15
+  ai_review_interval_minutes: 60
+  weekend_impulse_lookback_weeks: 104
+  weekend_impulse_high_quantile: 0.75
+  weekend_impulse_low_quantile: 0.25
+  heatmap_top_n_addresses: 40
+  heatmap_bucket_size: 250
+  diagnostic_min_zone_score: 40
+  stale_pulse_seconds: 1800
+  stale_crowd_seconds: 21600
+  stale_probability_seconds: 21600
+  probability_maturity_min_samples: 50
+
+sentiment:
+  enabled: true
+  refresh_cron: "5 0,4,8,12,16,20 * * *"
+  sources:
+    bybit_longshort:
+      enabled: true
+    okx_longshort:
+      enabled: true
+    fear_greed:
+      enabled: true
+    reddit:
+      enabled: false
+      user_agent: "btc_analyst/1.0 by /u/your_reddit_handle"
+    coingecko:
+      enabled: true
+  extreme_thresholds:
+    funding_8h_abs: 0.0005
+    long_short_ratio_high: 2.0
+    long_short_ratio_low: 0.5
+    fear_greed_extreme_low: 20
+    fear_greed_extreme_high: 80
+  aggregate_rule:
+    extreme_signals_required: 3
+    mild_signals_required: 2

@@ -1,0 +1,30 @@
+Metadata-Version: 2.4
+Name: btc-analyst
+Version: 1.0.0
+Summary: Bitcoin-only trading analysis assistant
+Requires-Python: >=3.11
+Requires-Dist: pybit>=5.7
+Requires-Dist: websockets>=12
+Requires-Dist: pandas>=2.2
+Requires-Dist: numpy>=1.26
+Requires-Dist: pandas-ta>=0.3.14b
+Requires-Dist: scipy>=1.13
+Requires-Dist: scikit-learn>=1.5
+Requires-Dist: plotly>=5.22
+Requires-Dist: kaleido>=0.2.1
+Requires-Dist: jinja2>=3.1
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: python-telegram-bot>=21
+Requires-Dist: pydantic>=2.7
+Requires-Dist: structlog>=24.1
+Requires-Dist: apscheduler>=3.10
+Requires-Dist: click>=8.1
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: responses; extra == "dev"
+Provides-Extra: backtest
+Requires-Dist: vectorbt>=0.26; extra == "backtest"
+Requires-Dist: numba>=0.59; extra == "backtest"

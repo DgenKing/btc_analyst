@@ -1,0 +1,10 @@
+config/secrets.env
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+data/
+reports/
+backtest_results/
+.claude/
+think_tank/

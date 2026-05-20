@@ -1,0 +1,420 @@
+# =============================================================================
+# Hermes Agent Configuration — BTC Analyst
+# =============================================================================
+# This file tells Hermes how to instantiate, route, schedule, and supervise the
+# BTC Analyst agent. Hermes reads this on startup. Reload via `hermes reload`.
+#
+# Conventions assumed:
+#   - Hermes has an agent registry that takes (id, entrypoint, capabilities).
+#   - Hermes has a tool registry where Python callables can be registered.
+#   - Hermes has a scheduler (cron-like) that fires events.
+#   - Hermes has a message bus with topics; agents subscribe/publish.
+#   - Hermes manages secrets via env vars + a vault file.
+#
+# If your Hermes API differs in exact field names, the only thing that needs
+# patching is `src/btc_analyst/hermes/adapter.py` — this YAML is the contract.
+# =============================================================================
+
+agent:
+  id: btc_analyst
+  display_name: "BTC Analyst"
+  version: "1.0.0"
+  description: >
+    Bitcoin-only trading analysis assistant. Marks zones, scores confluence,
+    detects reactions, generates daily reports and price-based alerts.
+    Analysis only — does not place trades.
+  entrypoint: "btc_analyst.hermes.adapter:register"
+  python_executable: "${HERMES_PYTHON:-python3}"
+  working_dir: "${BTC_ANALYST_HOME:-/opt/btc_analyst}"
+  log_channel: "btc_analyst"
+  health_check:
+    tool: "btc_analyst.sanity_check"
+    interval_seconds: 300
+    failure_threshold: 3
+    on_failure: "alert_and_restart"
+
+# -----------------------------------------------------------------------------
+# Capabilities — what this agent advertises to the rest of Hermes
+# -----------------------------------------------------------------------------
+capabilities:
+  - "market.analysis.btc"
+  - "report.daily.btc"
+  - "alert.price_zone.btc"
+  - "backtest.strategy.btc"
+  - "data.bybit.btc"
+
+# -----------------------------------------------------------------------------
+# Tools — exposed to other agents and to the user via Hermes
+# -----------------------------------------------------------------------------
+# Each tool is a Python function in src/btc_analyst/hermes/tools.py
+# Signatures and docstrings become the tool spec Hermes shows to LLMs/users.
+# -----------------------------------------------------------------------------
+tools:
+  - name: btc_get_state
+    handler: "btc_analyst.hermes.tools:get_state"
+    description: "Returns current BTC price, bias, active strong zones, and pending setups."
+    cache_ttl_seconds: 60
+
+  - name: btc_get_zones
+    handler: "btc_analyst.hermes.tools:get_zones"
+    description: "List active zones. Args: tier ('strong'|'medium'|'weak'|'all'), type ('support'|'resistance'|'all'), limit."
+    cache_ttl_seconds: 120
+
+  - name: btc_generate_report
+    handler: "btc_analyst.hermes.tools:generate_report"
+    description: "Generate the daily markdown report. Args: date (YYYY-MM-DD, default today), force (bool)."
+    timeout_seconds: 60
+
+  - name: btc_get_report
+    handler: "btc_analyst.hermes.tools:get_report"
+    description: "Fetch a previously generated report. Args: date."
+    cache_ttl_seconds: 600
+
+  - name: btc_list_alerts
+    handler: "btc_analyst.hermes.tools:list_alerts"
+    description: "List alerts. Args: status ('active'|'fired'|'all'), since (ISO timestamp)."
+
+  - name: btc_create_manual_alert
+    handler: "btc_analyst.hermes.tools:create_manual_alert"
+    description: "Create a manual price alert. Args: price, direction ('cross_above'|'cross_below'), note."
+    require_confirmation: true
+
+  - name: btc_cancel_alert
+    handler: "btc_analyst.hermes.tools:cancel_alert"
+    description: "Cancel an alert by id."
+    require_confirmation: true
+
+  - name: btc_get_setups
+    handler: "btc_analyst.hermes.tools:get_setups"
+    description: "List trade setups. Args: status ('active'|'closed'|'all'), since."
+
+  - name: btc_run_backtest
+    handler: "btc_analyst.hermes.tools:run_backtest"
+    description: "Run a backtest. Args: period_start, period_end, config_overrides (dict)."
+    timeout_seconds: 1800
+    require_confirmation: true
+
+  - name: btc_force_zone_recompute
+    handler: "btc_analyst.hermes.tools:force_zone_recompute"
+    description: "Force full zone recomputation. Use after config changes."
+    require_confirmation: true
+
+  - name: btc_sanity_check
+    handler: "btc_analyst.hermes.tools:sanity_check"
+    description: "Verify data freshness, indicator alignment, alert pipeline health."
+
+  - name: btc_run_setups_cycle
+    handler: "btc_analyst.hermes.tools:run_setups_cycle"
+    description: "Run setup engine once and return attempt/persist/rejection diagnostics."
+
+  - name: btc_explain_setup_blockers
+    handler: "btc_analyst.hermes.tools:explain_setup_blockers"
+    description: "Show top zone and current setup count for blocker diagnosis."
+
+  - name: btc_get_crowd_positioning
+    handler: "btc_analyst.hermes.tools:get_crowd_positioning"
+    description: "Returns latest crowd positioning snapshot with all signals, aggregate label, and which sources were available."
+    cache_ttl_seconds: 300
+
+  - name: btc_refresh_liq_heatmap
+    handler: "btc_analyst.hermes.tools:refresh_liq_heatmap"
+    description: "Refresh Hyperliquid liquidation heatmap snapshot. Args: bucket_size, top_n_addresses."
+
+  - name: btc_get_liq_heatmap
+    handler: "btc_analyst.hermes.tools:get_liq_heatmap"
+    description: "Get liquidation heatmap buckets near current price."
+
+  - name: btc_get_liq_clusters
+    handler: "btc_analyst.hermes.tools:get_liq_clusters"
+    description: "Get top N liquidation clusters by density."
+
+  - name: btc_liq_pressure_at_price
+    handler: "btc_analyst.hermes.tools:liq_pressure_at_price"
+    description: "Estimate net liquidation pressure near a given price."
+
+  - name: btc_probability_score
+    handler: "btc_analyst.hermes.tools:get_probability"
+    description: "Returns probability distribution for 4H/1D/1W with confidence and latest Brier score. Args: timeframe."
+
+  - name: btc_probability_history
+    handler: "btc_analyst.hermes.tools:get_probability_history_tool"
+    description: "Returns historical probability snapshots with outcomes. Args: timeframe, limit."
+
+  - name: btc_explain_probability
+    handler: "btc_analyst.hermes.tools:explain_probability_tool"
+    description: "Detailed signal breakdown, weights, and commentary for latest timeframe snapshot."
+
+  - name: btc_regime_state
+    handler: "btc_analyst.hermes.tools:regime_state"
+    description: "Current regime state with ADX, Hurst, ATR%, BB squeeze, confidence."
+
+  - name: btc_calibration_report
+    handler: "btc_analyst.hermes.tools:calibration_report_tool"
+    description: "Model calibration metrics by timeframe (Brier, log loss, threshold accuracy)."
+
+  - name: btc_signal_accuracy
+    handler: "btc_analyst.hermes.tools:signal_accuracy_tool"
+    description: "Per-signal historical accuracy rates. Args: signal_name optional."
+
+  - name: btc_kelly_size
+    handler: "btc_analyst.hermes.tools:kelly_size_tool"
+    description: "Fractional Kelly position sizing from current calibrated probabilities. Args: account_balance, max_risk_pct."
+
+  - name: btc_log_call
+    handler: "btc_analyst.hermes.tools:log_call"
+    description: "Log a directional call for calibration. Args: direction ('up'|'down'|'sideways'), conviction (0-100), evidence (dict), predicted_horizon_h, source."
+
+# -----------------------------------------------------------------------------
+# Scheduled tasks — cron-style, all UTC
+# -----------------------------------------------------------------------------
+schedules:
+  - id: data_ingest_heartbeat
+    description: "Verify Bybit WS is alive and bars are flowing."
+    cron: "*/5 * * * *"
+    handler: "btc_analyst.hermes.schedules:heartbeat"
+    on_failure: "alert"
+
+  - id: bar_close_4h
+    description: "Triggered by bar-close WS event. Cron is a safety net."
+    cron: "1 0,4,8,12,16,20 * * *"
+    handler: "btc_analyst.hermes.schedules:on_4h_close"
+    deduplicate_with_event: "bybit.bar_close.4h"
+
+  - id: bar_close_daily
+    description: "Daily bar close — runs daily recomputation."
+    cron: "1 0 * * *"
+    handler: "btc_analyst.hermes.schedules:on_daily_close"
+
+  - id: daily_report
+    description: "Generate and dispatch the daily BTC report."
+    cron: "0 12 * * *"
+    handler: "btc_analyst.hermes.schedules:run_daily_report"
+    timeout_seconds: 120
+
+  - id: weekly_review
+    description: "Weekly summary of bot performance, fired setups, win rate."
+    cron: "0 14 * * MON"
+    handler: "btc_analyst.hermes.schedules:run_weekly_review"
+
+  - id: cme_close_warning
+    description: "Thursday 20:00 UTC heads-up that CME close is approaching."
+    cron: "0 20 * * THU"
+    handler: "btc_analyst.hermes.schedules:cme_close_warning"
+
+  - id: cme_open_check
+    description: "Sunday 22:00 UTC — check for CME gap vs Bybit price."
+    cron: "0 22 * * SUN"
+    handler: "btc_analyst.hermes.schedules:cme_open_check"
+
+  - id: db_vacuum
+    description: "SQLite maintenance — runs vacuum and analyze."
+    cron: "0 3 * * SUN"
+    handler: "btc_analyst.hermes.schedules:db_maintenance"
+
+  - id: zone_recency_decay
+    description: "Recompute scores with decay; prune old noise-tier zones."
+    cron: "0 2 * * *"
+    handler: "btc_analyst.hermes.schedules:apply_decay"
+
+  - id: crowd_positioning_refresh
+    description: "Refresh crowd positioning signals every 4h, 5 min after bar close"
+    cron: "5 0,4,8,12,16,20 * * *"
+    handler: "btc_analyst.hermes.schedules:refresh_crowd_positioning"
+    timeout_seconds: 60
+
+  - id: probability_hourly_1d
+    description: "Refresh 1D probability scorer hourly."
+    cron: "0 * * * *"
+    handler: "btc_analyst.hermes.schedules:probability_hourly_1d"
+
+  - id: bot_call_realization_hourly
+    description: "Realize matured bot_calls rows and score hit outcomes."
+    cron: "10 * * * *"
+    handler: "btc_analyst.hermes.schedules:bot_call_realization_hourly"
+
+  - id: probability_retro_daily
+    description: "Score matured probability snapshots and update calibration metrics."
+    cron: "30 0 * * *"
+    handler: "btc_analyst.hermes.schedules:probability_retrospective_daily"
+
+  - id: probability_weekly_recompute
+    description: "Weekly full probability recompute + retrospective pass."
+    cron: "0 0 * * SUN"
+    handler: "btc_analyst.hermes.schedules:probability_weekly_recompute"
+
+# -----------------------------------------------------------------------------
+# Event subscriptions — agent listens to Hermes bus topics
+# -----------------------------------------------------------------------------
+subscribes:
+  - topic: "bybit.bar_close.4h"
+    handler: "btc_analyst.hermes.adapter:on_bar_close_4h"
+  - topic: "bybit.bar_close.1d"
+    handler: "btc_analyst.hermes.adapter:on_bar_close_daily"
+  - topic: "bybit.liquidation"
+    handler: "btc_analyst.hermes.adapter:on_liquidation"
+    rate_limit:
+      max_per_second: 50
+  - topic: "hermes.shutdown"
+    handler: "btc_analyst.hermes.adapter:graceful_shutdown"
+  - topic: "hermes.config_reload"
+    handler: "btc_analyst.hermes.adapter:reload_config"
+
+# -----------------------------------------------------------------------------
+# Event publications — topics this agent emits to the bus
+# -----------------------------------------------------------------------------
+publishes:
+  - topic: "btc_analyst.alert.zone_entry"
+    schema: "schemas/alert_zone_entry.json"
+  - topic: "btc_analyst.alert.reaction_confirmed"
+    schema: "schemas/alert_reaction.json"
+  - topic: "btc_analyst.alert.trigger_fired"
+    schema: "schemas/alert_trigger.json"
+  - topic: "btc_analyst.alert.invalidation"
+    schema: "schemas/alert_invalidation.json"
+  - topic: "btc_analyst.report.daily_ready"
+    schema: "schemas/report_ready.json"
+  - topic: "btc_analyst.setup.created"
+    schema: "schemas/setup.json"
+  - topic: "btc_analyst.setup.closed"
+    schema: "schemas/setup_closed.json"
+  - topic: "btc_analyst.crowd_positioning.updated"
+    schema: "schemas/crowd_positioning.json"
+
+# -----------------------------------------------------------------------------
+# Notification routing — which alerts go where
+# -----------------------------------------------------------------------------
+notifications:
+  channels:
+    telegram_primary:
+      type: telegram
+      bot_token_env: TELEGRAM_BOT_TOKEN
+      chat_id_env: TELEGRAM_CHAT_ID
+      parse_mode: MarkdownV2
+    log_only:
+      type: log
+      file: "${BTC_ANALYST_HOME}/logs/alerts.log"
+    webhook_tradingview:
+      type: webhook
+      url_env: TRADINGVIEW_WEBHOOK_URL
+      enabled: false  # off by default
+
+  routes:
+    - event: "btc_analyst.alert.trigger_fired"
+      tier_filter: ["strong"]
+      channels: ["telegram_primary", "log_only"]
+    - event: "btc_analyst.alert.zone_entry"
+      tier_filter: ["strong"]
+      channels: ["telegram_primary", "log_only"]
+    - event: "btc_analyst.alert.reaction_confirmed"
+      tier_filter: ["strong", "medium"]
+      channels: ["telegram_primary", "log_only"]
+    - event: "btc_analyst.alert.invalidation"
+      tier_filter: ["strong", "medium"]
+      channels: ["telegram_primary", "log_only"]
+    - event: "btc_analyst.report.daily_ready"
+      channels: ["telegram_primary", "log_only"]
+    - event: "btc_analyst.setup.created"
+      channels: ["telegram_primary", "log_only"]
+
+# -----------------------------------------------------------------------------
+# Storage — paths Hermes guarantees are persistent
+# -----------------------------------------------------------------------------
+storage:
+  db_path: "${BTC_ANALYST_HOME}/data/btc_analyst.db"
+  reports_dir: "${BTC_ANALYST_HOME}/reports"
+  charts_dir: "${BTC_ANALYST_HOME}/charts"
+  backtest_dir: "${BTC_ANALYST_HOME}/backtest_results"
+  log_dir: "${BTC_ANALYST_HOME}/logs"
+  backup:
+    enabled: true
+    interval_hours: 24
+    keep_days: 30
+    target_dir: "${BTC_ANALYST_HOME}/backups"
+
+# -----------------------------------------------------------------------------
+# Secrets — env vars Hermes must populate before launching
+# -----------------------------------------------------------------------------
+secrets:
+  required: []                          # Bybit public endpoints need no auth
+  optional:
+    - TELEGRAM_BOT_TOKEN
+    - TELEGRAM_CHAT_ID
+    - TRADINGVIEW_WEBHOOK_URL
+    - BYBIT_API_KEY                     # only if private account features added
+    - BYBIT_API_SECRET
+
+# -----------------------------------------------------------------------------
+# Resource limits — protect Hermes from a runaway agent
+# -----------------------------------------------------------------------------
+limits:
+  memory_mb: 1024
+  cpu_percent: 50
+  disk_quota_gb: 5
+  network_egress_kbps: 0                # 0 = unlimited
+  max_concurrent_backtests: 1
+
+# -----------------------------------------------------------------------------
+# Safety controls — explicit guardrails
+# -----------------------------------------------------------------------------
+safety:
+  trading_enabled: false                # v1: analysis only. Hard off.
+  trading_enable_requires:
+    - explicit_config_flag: "ALLOW_TRADING=true"
+    - human_confirmation_per_session: true
+    - max_position_size_pct: 0.5
+    - kill_switch_topic: "btc_analyst.kill_switch"
+  alert_rate_limit:
+    max_telegram_per_hour: 6
+    on_exceed: "queue_and_summarize"
+  report_validation:
+    required_sections:
+      - "Current Context"
+      - "Bias"
+      - "Support Zones"
+      - "Resistance Zones"
+      - "Setup Table"
+      - "Limitations"
+    on_missing_section: "fail_and_alert"
+
+# -----------------------------------------------------------------------------
+# Observability — what Hermes exposes for monitoring
+# -----------------------------------------------------------------------------
+observability:
+  metrics:
+    - name: bars_ingested_total
+      type: counter
+    - name: zones_active_count
+      type: gauge
+    - name: alerts_fired_total
+      type: counter
+      labels: ["tier", "type"]
+    - name: setups_created_total
+      type: counter
+    - name: setups_realised_r
+      type: histogram
+    - name: ws_reconnects_total
+      type: counter
+    - name: daily_report_generation_seconds
+      type: histogram
+  prometheus_port: 9101
+
+# -----------------------------------------------------------------------------
+# Inter-agent contracts — how other Hermes agents can use this one
+# -----------------------------------------------------------------------------
+# Example: Apex (social agent) could call btc_get_state to draft a market post.
+# Vector could subscribe to btc_analyst.report.daily_ready for distribution.
+# -----------------------------------------------------------------------------
+peers:
+  apex:
+    allowed_tools:
+      - btc_get_state
+      - btc_get_report
+      - btc_get_zones
+  nova:
+    allowed_tools:
+      - btc_get_state
+      - btc_list_alerts
+  vector:
+    subscribes:
+      - "btc_analyst.report.daily_ready"
+      - "btc_analyst.setup.created"
