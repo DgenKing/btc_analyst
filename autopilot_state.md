@@ -12,11 +12,11 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
-
 ---
 
 ## Done
 
+- 2026-05-21T22:11:39Z [MAIN] 04da90c add framework trade-frequency defaults (ideal=1/week, max=2/week) to config contract
 - 2026-05-21T22:01:54Z [TEST] fefc941 TEST: add bearish rejection momentum behavior test (resistance RSI rejection requires weak momentum threshold)
 - 2026-05-21T21:38:35Z [TEST] 326a28e TEST: add session-quality behavior test (London/NY overlap scores above single-session windows)
 - 2026-05-21T21:34:11Z [MAIN] 56fb081 setup engine queries should use configured symbol (BTCUSDC), not hardcoded BTCUSDT
