@@ -39,16 +39,16 @@ def _weekly_timing_quality(now_utc: datetime) -> tuple[str, float]:
     return ('late_week_window', 0.6)
 
 
-def _weekend_impulse_context(conn, venue: str, now_utc: datetime, lookback_weeks: int = 104, q_low: float = 0.25, q_high: float = 0.75) -> dict:
+def _weekend_impulse_context(conn, venue: str, symbol: str, now_utc: datetime, lookback_weeks: int = 104, q_low: float = 0.25, q_high: float = 0.75) -> dict:
     dfd = pd.read_sql_query(
         """
         SELECT open_time, high, low
         FROM candles
-        WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1d'
+        WHERE symbol=? AND venue=? AND timeframe='1d'
         ORDER BY open_time
         """,
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
     if dfd.empty:
         return {'ok': False, 'reason': 'no_daily_candles'}
@@ -113,17 +113,17 @@ def _weekend_impulse_context(conn, venue: str, now_utc: datetime, lookback_weeks
     }
 
 
-def _latest_4h(conn, venue: str):
+def _latest_4h(conn, venue: str, symbol: str):
     df = pd.read_sql_query(
         """
         SELECT open_time, open, high, low, close, volume
         FROM candles
-        WHERE symbol='BTCUSDT' AND venue=? AND timeframe='4h'
+        WHERE symbol=? AND venue=? AND timeframe='4h'
         ORDER BY open_time DESC
         LIMIT 2
         """,
         conn,
-        params=[venue],
+        params=[symbol, venue],
     ).sort_values("open_time")
     if df.empty:
         return None, None
@@ -132,17 +132,17 @@ def _latest_4h(conn, venue: str):
     return cur, prev
 
 
-def _atr_daily_pct(conn, venue: str):
+def _atr_daily_pct(conn, venue: str, symbol: str):
     dfd = pd.read_sql_query(
         """
         SELECT open_time, high, low, close
         FROM candles
-        WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1d'
+        WHERE symbol=? AND venue=? AND timeframe='1d'
         ORDER BY open_time DESC
         LIMIT 30
         """,
         conn,
-        params=[venue],
+        params=[symbol, venue],
     ).sort_values("open_time")
     if dfd.empty or len(dfd) < 14:
         return None
@@ -155,11 +155,11 @@ def _ema(series: pd.Series, span: int) -> pd.Series:
     return series.ewm(span=span, adjust=False).mean()
 
 
-def _latest_4h_indicators(conn, venue: str) -> tuple[float | None, float | None]:
+def _latest_4h_indicators(conn, venue: str, symbol: str) -> tuple[float | None, float | None]:
     d = pd.read_sql_query(
-        "SELECT close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='4h' ORDER BY open_time DESC LIMIT 120",
+        "SELECT close FROM candles WHERE symbol=? AND venue=? AND timeframe='4h' ORDER BY open_time DESC LIMIT 120",
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
     if d.empty or len(d) < 35:
         return None, None
@@ -184,7 +184,7 @@ def _latest_4h_indicators(conn, venue: str) -> tuple[float | None, float | None]
     return rsi_val, hist_val
 
 
-def _asia_us_reversal_signal(conn, venue: str, now_utc: datetime, pump_dump_threshold_pct: float = 0.6) -> dict:
+def _asia_us_reversal_signal(conn, venue: str, symbol: str, now_utc: datetime, pump_dump_threshold_pct: float = 0.6) -> dict:
     sessions = active_sessions(now_utc)
     in_tokyo = 'tokyo' in sessions
     # We only apply this as a hard trigger around early Asia flow (00:00-04:00 UTC)
@@ -192,9 +192,9 @@ def _asia_us_reversal_signal(conn, venue: str, now_utc: datetime, pump_dump_thre
         return {'active': False, 'reason': 'outside_asia_reversal_window'}
 
     d = pd.read_sql_query(
-        "SELECT open_time, close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1h' ORDER BY open_time DESC LIMIT 12",
+        "SELECT open_time, close FROM candles WHERE symbol=? AND venue=? AND timeframe='1h' ORDER BY open_time DESC LIMIT 12",
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
     if d.empty or len(d) < 8:
         return {'active': False, 'reason': 'insufficient_1h_candles'}
@@ -221,26 +221,26 @@ def _asia_us_reversal_signal(conn, venue: str, now_utc: datetime, pump_dump_thre
     }
 
 
-def _mtf_alignment(conn, direction: str, venue: str) -> tuple[bool, str, float, dict]:
+def _mtf_alignment(conn, direction: str, venue: str, symbol: str) -> tuple[bool, str, float, dict]:
     dfd = pd.read_sql_query(
-        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1d' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol=? AND venue=? AND timeframe='1d' ORDER BY open_time",
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
     df12 = pd.read_sql_query(
-        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='12h' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol=? AND venue=? AND timeframe='12h' ORDER BY open_time",
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
     df8 = pd.read_sql_query(
-        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='8h' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol=? AND venue=? AND timeframe='8h' ORDER BY open_time",
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
     df4 = pd.read_sql_query(
-        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='4h' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol=? AND venue=? AND timeframe='4h' ORDER BY open_time",
         conn,
-        params=[venue],
+        params=[symbol, venue],
     )
 
     daily = _trend_from_df(dfd, '1d')
@@ -278,7 +278,8 @@ def _mtf_alignment(conn, direction: str, venue: str) -> tuple[bool, str, float, 
 
 def run_setup_engine(conn, cfg: dict) -> dict:
     venue = ((cfg.get('data') or {}).get('primary_venue', 'binance_perp'))
-    cur, prev = _latest_4h(conn, venue)
+    symbol = str((cfg.get('data') or {}).get('symbol', 'BTCUSDT'))
+    cur, prev = _latest_4h(conn, venue, symbol)
     if cur is None:
         return {"ok": False, "reason": "no_4h_candle"}
 
@@ -302,6 +303,7 @@ def run_setup_engine(conn, cfg: dict) -> dict:
     weekend_ctx = _weekend_impulse_context(
         conn,
         venue,
+        symbol,
         now_utc,
         lookback_weeks=int(mon.get('weekend_impulse_lookback_weeks', 104)),
         q_low=float(mon.get('weekend_impulse_low_quantile', 0.25)),
@@ -309,7 +311,7 @@ def run_setup_engine(conn, cfg: dict) -> dict:
     )
     asia_reversal_cfg = bool(mon.get('asia_reversal_hard_trigger_enabled', True))
     asia_reversal_threshold = float(mon.get('asia_reversal_threshold_pct', 0.6))
-    asia_reversal = _asia_us_reversal_signal(conn, venue, now_utc, asia_reversal_threshold)
+    asia_reversal = _asia_us_reversal_signal(conn, venue, symbol, now_utc, asia_reversal_threshold)
 
     zones = conn.execute(
         """
@@ -334,11 +336,11 @@ def run_setup_engine(conn, cfg: dict) -> dict:
         ).fetchall()
         fallback_used = True
 
-    atr_daily_pct = _atr_daily_pct(conn, venue)
+    atr_daily_pct = _atr_daily_pct(conn, venue, symbol)
     setup_cfg = (cfg.get('setups') or {})
     proximity_pct = float(setup_cfg.get('reaction_proximity_pct', 0.35))
     wick_ratio_min = float(setup_cfg.get('rejection_wick_ratio_min', 1.2))
-    rsi_4h, macd_hist_4h = _latest_4h_indicators(conn, venue)
+    rsi_4h, macd_hist_4h = _latest_4h_indicators(conn, venue, symbol)
     attempted = 0
     persisted = 0
     reasons: dict[str, int] = {}
@@ -395,7 +397,7 @@ def run_setup_engine(conn, cfg: dict) -> dict:
                 reasons['asia_reversal_direction_mismatch'] = reasons.get('asia_reversal_direction_mismatch', 0) + 1
                 continue
 
-        aligned, align_label, align_multiplier, tf_snapshot = _mtf_alignment(conn, direction, venue)
+        aligned, align_label, align_multiplier, tf_snapshot = _mtf_alignment(conn, direction, venue, symbol)
         if not aligned:
             reasons[align_label] = reasons.get(align_label, 0) + 1
             continue

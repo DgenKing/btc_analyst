@@ -20,7 +20,7 @@ def test_mtf_alignment_requires_12h_and_8h_agreement_when_daily_is_neutral(monke
             return next(seq)
 
         monkeypatch.setattr(engine, "_trend_from_df", fake_trend_from_df)
-        return engine._mtf_alignment(conn=None, direction="long", venue="binance_perp")
+        return engine._mtf_alignment(conn=None, direction="long", venue="binance_perp", symbol="BTCUSDC")
 
     aligned, label, multiplier, snapshot = run_case(["neutral", "bull", "bull", "neutral"])
     assert aligned is True
@@ -51,7 +51,7 @@ def test_short_mtf_alignment_requires_12h_and_8h_bearish_agreement_when_daily_is
             return next(seq)
 
         monkeypatch.setattr(engine, "_trend_from_df", fake_trend_from_df)
-        return engine._mtf_alignment(conn=None, direction="short", venue="binance_perp")
+        return engine._mtf_alignment(conn=None, direction="short", venue="binance_perp", symbol="BTCUSDC")
 
     aligned, label, multiplier, snapshot = run_case(["neutral", "bear", "bear", "neutral"])
     assert aligned is True
@@ -63,3 +63,23 @@ def test_short_mtf_alignment_requires_12h_and_8h_bearish_agreement_when_daily_is
     assert aligned_bad is False
     assert label_bad == "daily_neutral_no_ltf_align"
     assert snapshot_bad == {"daily": "neutral", "h12": "bear", "h8": "bull", "h4": "bear"}
+
+
+def test_mtf_alignment_queries_use_configured_symbol_parameter(monkeypatch):
+    """Framework primary pair is BTC-USDC; setup-engine HTF queries should parameterize symbol, not hardcode BTCUSDT."""
+
+    seen = []
+
+    def fake_read_sql_query(query, _conn, params=None):
+        seen.append((query, params))
+        return pd.DataFrame([{"open_time": 1, "high": 110.0, "low": 90.0, "close": 100.0}])
+
+    monkeypatch.setattr(engine.pd, "read_sql_query", fake_read_sql_query)
+    monkeypatch.setattr(engine, "_trend_from_df", lambda _df, _tf: "bull")
+
+    engine._mtf_alignment(conn=None, direction="long", venue="hyperliquid_perp", symbol="BTCUSDC")
+
+    assert len(seen) == 4
+    for query, params in seen:
+        assert "symbol=?" in query
+        assert params == ["BTCUSDC", "hyperliquid_perp"]
