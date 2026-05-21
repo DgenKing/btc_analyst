@@ -347,6 +347,20 @@ def run_setup_engine(conn, cfg: dict) -> dict:
     timing_quality, timing_multiplier = _weekly_timing_quality(now_utc)
     trade_frequency_cfg = ((cfg.get('setups') or {}).get('trade_frequency') or {})
     max_qualified_setups_per_week = int(trade_frequency_cfg.get('max_qualified_setups_per_week', 2))
+    week_window_secs = int(trade_frequency_cfg.get('week_window_seconds', 7 * 24 * 3600))
+    now_ts = int(now_utc.timestamp())
+    week_cutoff_ts = now_ts - week_window_secs
+    existing_weekly_qualified = int(
+        conn.execute(
+            """
+            SELECT COUNT(1)
+            FROM setups
+            WHERE created_at >= ?
+              AND status IN ('active', 'pending_b')
+            """,
+            (week_cutoff_ts,),
+        ).fetchone()[0]
+    )
     tier_cfg = ((cfg.get('setups') or {}).get('tiering') or {})
     tiering_enabled = bool(tier_cfg.get('enabled', True))
     a_required = int(tier_cfg.get('a_required_factors', 3))
@@ -546,7 +560,7 @@ def run_setup_engine(conn, cfg: dict) -> dict:
             reasons[reason or "hard_filter_reject"] = reasons.get(reason or "hard_filter_reject", 0) + 1
             continue
 
-        if persisted >= max_qualified_setups_per_week:
+        if (existing_weekly_qualified + persisted) >= max_qualified_setups_per_week:
             reasons['trade_frequency_cap_reached'] = reasons.get('trade_frequency_cap_reached', 0) + 1
             continue
 
