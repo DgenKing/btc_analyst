@@ -34,3 +34,20 @@ def test_counter_trend_setup_requires_high_conviction_score_threshold():
     )
     assert ok_high is True
     assert reason_high is None
+
+
+def test_framework_supports_both_long_and_short_setup_directions():
+    """Framework rule: trade direction includes both long and short, not long-only."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    long_ok, long_reason = apply_hard_filters(rr_t1=2.0, cfg=cfg, direction="long", zone_score=90)
+    short_ok, short_reason = apply_hard_filters(rr_t1=2.0, cfg=cfg, direction="short", zone_score=90)
+
+    assert long_ok is True and long_reason is None
+    assert short_ok is True and short_reason is None
