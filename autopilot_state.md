@@ -51,6 +51,7 @@ treats this as its working memory.
 
 ## Considered but rejected
 
+- 2026-05-21T21:53:15Z [MAIN] framework gap candidate: explicit Friday de-risk timing behavior parity test -- already implemented in tests/unit/test_setup_engine_timing.py::test_weekly_timing_quality_windows_follow_framework_cycle
 - 2026-05-21T19:59:28Z [MAIN] framework gap candidate: horizontal-vs-diagonal trendline weighting test -- already implemented in tests/unit/test_scoring.py::test_horizontal_levels_outweigh_trendline_when_strength_is_equal
 
 <!-- Candidates the autopilot looked at and decided NOT to pursue.
