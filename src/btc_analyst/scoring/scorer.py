@@ -66,8 +66,14 @@ def score_zone(zone,cfg,market_state=None):
     weekday = ms.get('weekday')
     if weekday is None:
         weekday = datetime.now(timezone.utc).weekday()
-    # Monday(0)-Tuesday(1)-Sunday(6) = preferred entry window
-    if weekday in (6, 0, 1):
+    # Sunday preferred window begins after 22:00 UTC; Monday/Tuesday preferred all day.
+    utc_hour = ms.get('utc_hour')
+    if weekday == 6:
+        if utc_hour is None:
+            utc_hour = datetime.now(timezone.utc).hour
+        if int(utc_hour) >= 22:
+            score *= smt_mult
+    elif weekday in (0, 1):
         score *= smt_mult
     # Thursday-Friday-Saturday = reduced exposure window
     elif weekday in (3, 4, 5):

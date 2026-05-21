@@ -12,6 +12,7 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-21T18:41:52Z [MAIN] Enforce Sunday preferred-window boost only after 22:00 UTC per framework timing
 
 ---
 

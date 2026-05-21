@@ -79,15 +79,15 @@ def test_weekly_cycle_multiplier_prefers_sunday_and_penalizes_friday_saturday():
         z.factors = {"range_edge": True, "horizontal_strength": 1.0}
         return z
 
-    sun = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6}).score
+    sun = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6, "utc_hour": 22}).score
     wed = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 2}).score
     fri = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 4}).score
 
     assert sun > wed > fri
 
 
-def test_weekly_cycle_preferred_window_treats_sunday_monday_tuesday_equally():
-    """Framework weekly cycle: Sunday/Monday/Tuesday share the preferred setup window."""
+def test_weekly_cycle_preferred_window_treats_sunday_monday_tuesday_equally_after_sunday_open():
+    """Framework weekly cycle: Sunday setup preference starts when liquidity returns (~22:00 UTC)."""
     cfg = {
         "scoring": {
             "weights": {
@@ -111,11 +111,14 @@ def test_weekly_cycle_preferred_window_treats_sunday_monday_tuesday_equally():
         z.factors = {"range_edge": True, "horizontal_strength": 1.0}
         return z
 
-    sun = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6}).score
+    sun_preopen = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6, "utc_hour": 12}).score
+    wed = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 2}).score
+    sun_open = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6, "utc_hour": 22}).score
     mon = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 0}).score
     tue = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 1}).score
 
-    assert sun == mon == tue
+    assert sun_preopen == wed
+    assert sun_open == mon == tue
 
 
 def test_acceptance_rejection_invalidation_requires_close_beyond_zone_and_atr_body():
