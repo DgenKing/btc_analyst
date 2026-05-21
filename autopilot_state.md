@@ -17,6 +17,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-21T22:01:54Z [TEST] fefc941 TEST: add bearish rejection momentum behavior test (resistance RSI rejection requires weak momentum threshold)
 - 2026-05-21T21:38:35Z [TEST] 326a28e TEST: add session-quality behavior test (London/NY overlap scores above single-session windows)
 - 2026-05-21T21:34:11Z [MAIN] 56fb081 setup engine queries should use configured symbol (BTCUSDC), not hardcoded BTCUSDT
 - 2026-05-21T21:13:41Z [MAIN] 6c0a78e report source label should reflect configured primary venue in daily report
