@@ -1,7 +1,5 @@
 import sqlite3
 
-import pytest
-
 from btc_analyst.setups import engine
 
 
@@ -106,5 +104,4 @@ def test_trade_frequency_caps_qualified_setups_to_two_per_week(monkeypatch):
 
     engine.run_setup_engine(conn, cfg)
 
-    pytest.xfail("Framework trade-frequency cap (max two qualified setups/week) is not enforced in setup engine yet.")
-    assert len(persisted) <= 2
+    assert len(persisted) == 2

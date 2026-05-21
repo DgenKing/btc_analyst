@@ -345,6 +345,8 @@ def run_setup_engine(conn, cfg: dict) -> dict:
     persisted = 0
     reasons: dict[str, int] = {}
     timing_quality, timing_multiplier = _weekly_timing_quality(now_utc)
+    trade_frequency_cfg = ((cfg.get('setups') or {}).get('trade_frequency') or {})
+    max_qualified_setups_per_week = int(trade_frequency_cfg.get('max_qualified_setups_per_week', 2))
     tier_cfg = ((cfg.get('setups') or {}).get('tiering') or {})
     tiering_enabled = bool(tier_cfg.get('enabled', True))
     a_required = int(tier_cfg.get('a_required_factors', 3))
@@ -542,6 +544,10 @@ def run_setup_engine(conn, cfg: dict) -> dict:
         )
         if not ok:
             reasons[reason or "hard_filter_reject"] = reasons.get(reason or "hard_filter_reject", 0) + 1
+            continue
+
+        if persisted >= max_qualified_setups_per_week:
+            reasons['trade_frequency_cap_reached'] = reasons.get('trade_frequency_cap_reached', 0) + 1
             continue
 
         persist_setup(conn, setup)
