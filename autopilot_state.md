@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-21T22:53:16Z [TEST] ddd59e4 TEST: trade-frequency cap should count existing weekly qualified setups before persisting new ones
+
 - 2026-05-21T22:31:03Z [MAIN] 2995451 enforce framework trade-frequency cap: persist at most two qualified setups per week
 - 2026-05-21T22:26:45Z [TEST] 448ca60 TEST: trade-frequency rule should cap framework-qualified setups to max two per week (xfail)
 - 2026-05-21T22:11:39Z [MAIN] 04da90c add framework trade-frequency defaults (ideal=1/week, max=2/week) to config contract
