@@ -9,6 +9,7 @@ treats this as its working memory.
 ---
 
 ## In progress
+- 2026-05-21T20:53:47Z [MAIN] default symbol should align with framework BTC-USDC perpetual pair
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
