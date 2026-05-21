@@ -32,3 +32,38 @@ def test_hvn_levels_become_directional_support_or_resistance_by_price_position(m
     assert above_price.zone_type == "resistance"
     assert below_price.factors["vp_volume_ratio"] == 3.0
     assert above_price.factors["vp_volume_ratio"] == 2.8
+
+
+def test_poc_zone_is_directional_relative_to_current_price(monkeypatch):
+    """Framework rule: POC is a key acceptance level and should map to support/resistance by location."""
+
+    monkeypatch.setattr("btc_analyst.zones.volume_zones.load_config", lambda: {"zones": {"volume_profile": {"hvn_multiplier": 1.5, "lvn_multiplier": 0.5}}})
+    df = pd.DataFrame({"close": [100.0, 100.0], "volume": [10.0, 20.0]})
+
+    monkeypatch.setattr(
+        "btc_analyst.zones.volume_zones.compute_profile",
+        lambda *_args, **_kwargs: {
+            "poc": 95.0,
+            "val": 90.0,
+            "vah": 110.0,
+            "hvns": [],
+            "lvns": [],
+            "mean_bin_volume": 100.0,
+        },
+    )
+    support_poc = next(z for z in zones_from_profile(df, symbol="BTCUSDT", timeframe="4h", bins=10) if z.source == "vp_poc")
+    assert support_poc.zone_type == "support"
+
+    monkeypatch.setattr(
+        "btc_analyst.zones.volume_zones.compute_profile",
+        lambda *_args, **_kwargs: {
+            "poc": 105.0,
+            "val": 90.0,
+            "vah": 110.0,
+            "hvns": [],
+            "lvns": [],
+            "mean_bin_volume": 100.0,
+        },
+    )
+    resistance_poc = next(z for z in zones_from_profile(df, symbol="BTCUSDT", timeframe="4h", bins=10) if z.source == "vp_poc")
+    assert resistance_poc.zone_type == "resistance"

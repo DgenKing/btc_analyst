@@ -10,6 +10,7 @@ treats this as its working memory.
 
 ## In progress
 
+- 2026-05-21T19:21:28Z [MAIN] Add POC directional behavior test (support below price, resistance above price)
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 
