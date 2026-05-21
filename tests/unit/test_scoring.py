@@ -52,3 +52,35 @@ def test_horizontal_levels_outweigh_trendline_when_strength_is_equal():
     diagonal = score_zone(diagonal, cfg, ms)
 
     assert horizontal.score > diagonal.score
+
+
+def test_weekly_cycle_multiplier_prefers_sunday_and_penalizes_friday_saturday():
+    """Framework weekly cycle: Sunday setup window preferred; Friday/Saturday de-risked."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 80, "medium": 60, "weak": 40},
+            "multipliers": {
+                "range_edge": 1.0,
+                "range_mid": 1.0,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.10,
+                "friday_saturday": 0.85,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    def _mk_zone():
+        z = Zone("BTCUSDT", 100, 101, "support", "horizontal", "4h")
+        z.factors = {"range_edge": True, "horizontal_strength": 1.0}
+        return z
+
+    sun = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6}).score
+    wed = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 2}).score
+    fri = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 4}).score
+
+    assert sun > wed > fri
