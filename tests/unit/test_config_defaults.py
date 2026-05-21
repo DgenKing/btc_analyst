@@ -17,3 +17,10 @@ def test_default_symbol_tracks_framework_btc_usdc_perpetual_pair():
     """Framework primary pair is BTC-USDC perpetuals."""
     cfg = load_config()
     assert cfg["data"]["symbol"] == "BTCUSDC"
+
+
+def test_trade_frequency_defaults_follow_framework_precision_rule():
+    """Framework trade frequency: ideal one trade/week, maximum two trades/week."""
+    cfg = load_config()
+    assert cfg["setups"]["trade_frequency"]["ideal_trades_per_week"] == 1
+    assert cfg["setups"]["trade_frequency"]["max_trades_per_week"] == 2
