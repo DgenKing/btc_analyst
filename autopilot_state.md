@@ -12,6 +12,7 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-21T21:37:56Z [TEST] TEST: add session-quality behavior test (London/NY overlap scores above single-session windows)
 
 ---
 
