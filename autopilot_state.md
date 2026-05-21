@@ -12,12 +12,12 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
-- 2026-05-21T21:37:56Z [TEST] TEST: add session-quality behavior test (London/NY overlap scores above single-session windows)
 
 ---
 
 ## Done
 
+- 2026-05-21T21:38:35Z [TEST] 326a28e TEST: add session-quality behavior test (London/NY overlap scores above single-session windows)
 - 2026-05-21T21:34:11Z [MAIN] 56fb081 setup engine queries should use configured symbol (BTCUSDC), not hardcoded BTCUSDT
 - 2026-05-21T21:13:41Z [MAIN] 6c0a78e report source label should reflect configured primary venue in daily report
 - 2026-05-21T21:07:50Z [TEST] 3210606 TEST: add reaction behavior test (framework acceptance/rejection requires rejection at resistance zone)
