@@ -10,7 +10,6 @@ treats this as its working memory.
 
 ## In progress
 
-- 2026-05-21T20:16:58Z [MAIN] framework gap candidate: add explicit test that default config includes 3d timeframe from Daily/3-Day section
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 
@@ -18,6 +17,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-21T20:17:03Z [MAIN] 0ac1ec4 add explicit test that default config includes 3d timeframe from Daily/3-Day section
 - 2026-05-21T19:55:41Z [TEST] 5845e6e TEST: add MTF alignment behavior test (daily neutral requires 12h/8h directional agreement)
 - 2026-05-21T19:40:08Z [MAIN] 0be4197 Enforce Sunday 22:00 UTC timing gate in setup engine weekly timing quality (pre-open Sunday should be midweek)
 - 2026-05-21T19:32:11Z [TEST] ae6dfa9 TEST: add range-structure behavior test (range edge scores above range midpoint)
