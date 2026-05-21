@@ -17,6 +17,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-21T21:13:41Z [MAIN] 6c0a78e report source label should reflect configured primary venue in daily report
 - 2026-05-21T21:07:50Z [TEST] 3210606 TEST: add reaction behavior test (framework acceptance/rejection requires rejection at resistance zone)
 - 2026-05-21T20:53:47Z [MAIN] 7654102 default symbol should align with framework BTC-USDC perpetual pair
 
