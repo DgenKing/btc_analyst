@@ -200,3 +200,34 @@ def test_weekly_cycle_derisks_saturday_equal_to_friday():
     sat = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 5}).score
 
     assert sat == fri
+
+
+def test_range_edge_scores_higher_than_range_midpoint_for_same_zone():
+    """Framework rule: range boundaries are higher-quality trade locations than mid-range entries."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 80, "medium": 60, "weak": 40},
+            "multipliers": {
+                "range_edge": 1.10,
+                "range_mid": 0.70,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.0,
+                "friday_saturday": 1.0,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    def _mk_zone(is_edge: bool):
+        z = Zone("BTCUSDT", 100, 101, "support", "horizontal", "4h")
+        z.factors = {"range_edge": is_edge, "horizontal_strength": 1.0}
+        return z
+
+    edge = score_zone(_mk_zone(True), cfg, {"regime": "range", "weekday": 2}).score
+    mid = score_zone(_mk_zone(False), cfg, {"regime": "range", "weekday": 2}).score
+
+    assert edge > mid

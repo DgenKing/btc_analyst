@@ -10,14 +10,15 @@ treats this as its working memory.
 
 ## In progress
 
-- 2026-05-21T19:21:28Z [MAIN] Add POC directional behavior test (support below price, resistance above price)
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-21T19:31:15Z [TEST] TEST: add range-structure behavior test (range edge scores above range midpoint)
 
 ---
 
 ## Done
 
+- 2026-05-21T19:21:28Z [MAIN] 1f1da02 Add POC directional behavior test (support below price, resistance above price)
 - 2026-05-21T19:09:30Z [TEST] c2ca4c4 TEST: add volume profile HVN behavior test (support below price / resistance above price)
 - 2026-05-21T19:01:15Z [MAIN] be99e6e Replace skipped backtest placeholder with executable behavior tests for walk-forward harness
 - 2026-05-21T18:45:43Z [TEST] 9e2f661 TEST: add trigger behavior test for reclaim/reject confirmation gating
