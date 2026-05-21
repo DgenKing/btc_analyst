@@ -10,13 +10,35 @@ Framework as the sole source of truth.
 
 | Job name | Cadence | Role |
 |---|---|---|
-| `btc-analyst-autopilot` | every 30m | Audit framework vs. code, fix one gap, run tests, commit locally |
-| `btc-analyst-autopilot-tests` | every 45m | Add one new test that encodes a framework rule, then commit |
-| `btc-analyst-autopilot-watchdog` | every 15m | Re-enable paused autopilot jobs, emit heartbeat |
+| `btc-analyst-autopilot` | every 15m | Audit framework vs. code, fix one gap, run tests, commit + push to `autopilot` branch |
+| `btc-analyst-autopilot-tests` | every 20m | Add one new behavior test encoding a framework rule, commit + push |
+| `btc-analyst-autopilot-watchdog` | every 5m | Re-enable paused autopilot jobs, emit heartbeat |
 
 All three are registered in `~/.hermes/cron/jobs.json` and dispatched by the
 Hermes gateway scheduler (which must be running — `hermes cron status`
 confirms).
+
+## Branching model
+
+- `master` — clean baseline. **Autopilot never touches this branch.**
+  Local rollback via `git reset --hard pre-autonomy-2026-05-21`.
+- `autopilot` — all autonomous commits land here. Pushed to
+  `origin/autopilot` after every successful iteration.
+- `pre-autonomy-2026-05-21` — tag pinning the pre-autopilot state on
+  GitHub at https://github.com/DgenKing/btc_analyst.
+
+To review autopilot work: `git log master..autopilot --oneline`
+To merge cherry-picks back: `git checkout master && git cherry-pick <sha>`
+
+## Persistent state
+
+`autopilot_state.md` (in this directory) is the autopilot's working memory
+across iterations. Sections: `## In progress`, `## Done`,
+`## Considered but rejected`. Lanes prefix entries with `[MAIN]` or
+`[TEST]`. Don't edit by hand unless you know what you're doing.
+
+A shared lock at `~/.hermes/btc_autopilot.lock` prevents the two lanes
+from racing the git repo when both fire near the same minute.
 
 ## Source of truth
 
