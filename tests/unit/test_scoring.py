@@ -86,6 +86,38 @@ def test_weekly_cycle_multiplier_prefers_sunday_and_penalizes_friday_saturday():
     assert sun > wed > fri
 
 
+def test_weekly_cycle_preferred_window_treats_sunday_monday_tuesday_equally():
+    """Framework weekly cycle: Sunday/Monday/Tuesday share the preferred setup window."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 80, "medium": 60, "weak": 40},
+            "multipliers": {
+                "range_edge": 1.0,
+                "range_mid": 1.0,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.10,
+                "friday_saturday": 0.85,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    def _mk_zone():
+        z = Zone("BTCUSDT", 100, 101, "support", "horizontal", "4h")
+        z.factors = {"range_edge": True, "horizontal_strength": 1.0}
+        return z
+
+    sun = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 6}).score
+    mon = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 0}).score
+    tue = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 1}).score
+
+    assert sun == mon == tue
+
+
 def test_acceptance_rejection_invalidation_requires_close_beyond_zone_and_atr_body():
     """Framework rule: acceptance/rejection invalidation needs a close beyond level with decisive body (> ATR)."""
     zone = {"price_low": 100.0, "price_high": 110.0}
