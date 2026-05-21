@@ -4,8 +4,9 @@ from btc_analyst.setups.engine import _weekly_timing_quality
 
 
 def test_weekly_timing_quality_windows_follow_framework_cycle():
-    """Framework rule: Sunday-Monday-Tuesday are preferred; Friday-Saturday are de-risked late-week windows."""
-    sun = _weekly_timing_quality(datetime(2026, 5, 24, 22, 0, tzinfo=timezone.utc))
+    """Framework rule: Sunday preferred window starts at ~22:00 UTC; Mon/Tue preferred; Fri/Sat de-risked."""
+    sun_preopen = _weekly_timing_quality(datetime(2026, 5, 24, 21, 59, tzinfo=timezone.utc))
+    sun_open = _weekly_timing_quality(datetime(2026, 5, 24, 22, 0, tzinfo=timezone.utc))
     mon = _weekly_timing_quality(datetime(2026, 5, 25, 12, 0, tzinfo=timezone.utc))
     tue = _weekly_timing_quality(datetime(2026, 5, 26, 12, 0, tzinfo=timezone.utc))
     wed = _weekly_timing_quality(datetime(2026, 5, 27, 12, 0, tzinfo=timezone.utc))
@@ -13,7 +14,8 @@ def test_weekly_timing_quality_windows_follow_framework_cycle():
     fri = _weekly_timing_quality(datetime(2026, 5, 29, 12, 0, tzinfo=timezone.utc))
     sat = _weekly_timing_quality(datetime(2026, 5, 30, 12, 0, tzinfo=timezone.utc))
 
-    assert sun == ("optimal_window", 1.0)
+    assert sun_preopen == ("midweek_window", 0.8)
+    assert sun_open == ("optimal_window", 1.0)
     assert mon == ("optimal_window", 1.0)
     assert tue == ("optimal_window", 1.0)
 

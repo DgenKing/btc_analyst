@@ -27,7 +27,12 @@ def _trend_from_df(df: pd.DataFrame, timeframe: str) -> str:
 
 def _weekly_timing_quality(now_utc: datetime) -> tuple[str, float]:
     wd = now_utc.weekday()  # Mon=0 ... Sun=6
-    if wd in (6, 0, 1):
+    # Sunday preferred window starts when futures/liquidity return (~22:00 UTC).
+    if wd == 6:
+        if int(now_utc.hour) >= 22:
+            return ('optimal_window', 1.0)
+        return ('midweek_window', 0.8)
+    if wd in (0, 1):
         return ('optimal_window', 1.0)
     if wd in (2, 3):
         return ('midweek_window', 0.8)
