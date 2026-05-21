@@ -12,6 +12,7 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-21T17:32:47Z [TEST] TEST: add hard-filter behavior test for counter-trend high-conviction threshold (requires score >= 85)
 
 ---
 
