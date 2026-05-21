@@ -10,6 +10,7 @@ treats this as its working memory.
 
 ## In progress
 
+- 2026-05-21T20:16:58Z [MAIN] framework gap candidate: add explicit test that default config includes 3d timeframe from Daily/3-Day section
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 
@@ -40,6 +41,8 @@ treats this as its working memory.
 ---
 
 ## Considered but rejected
+
+- 2026-05-21T19:59:28Z [MAIN] framework gap candidate: horizontal-vs-diagonal trendline weighting test -- already implemented in tests/unit/test_scoring.py::test_horizontal_levels_outweigh_trendline_when_strength_is_equal
 
 <!-- Candidates the autopilot looked at and decided NOT to pursue.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <candidate> -- <reason> -->
