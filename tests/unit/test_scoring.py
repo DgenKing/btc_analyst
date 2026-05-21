@@ -1,5 +1,5 @@
 from btc_analyst.zones.registry import Zone
-from btc_analyst.scoring.scorer import score_zone
+from btc_analyst.scoring.scorer import invalidated_by_rule, score_zone
 
 
 def test_score_zone_basic():
@@ -84,3 +84,20 @@ def test_weekly_cycle_multiplier_prefers_sunday_and_penalizes_friday_saturday():
     fri = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 4}).score
 
     assert sun > wed > fri
+
+
+def test_acceptance_rejection_invalidation_requires_close_beyond_zone_and_atr_body():
+    """Framework rule: acceptance/rejection invalidation needs a close beyond level with decisive body (> ATR)."""
+    zone = {"price_low": 100.0, "price_high": 110.0}
+
+    # Beyond resistance with strong impulse body: invalidated.
+    breakout = {"open": 108.0, "close": 114.0}
+    assert invalidated_by_rule(breakout, zone, atr4h=4.0) is True
+
+    # Wick/weak body beyond level should not invalidate.
+    weak_break = {"open": 112.2, "close": 113.0}
+    assert invalidated_by_rule(weak_break, zone, atr4h=2.0) is False
+
+    # Strong body but still inside the zone should not invalidate.
+    inside_close = {"open": 101.0, "close": 107.0}
+    assert invalidated_by_rule(inside_close, zone, atr4h=4.0) is False
