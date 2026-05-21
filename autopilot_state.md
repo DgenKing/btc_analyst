@@ -10,6 +10,7 @@ treats this as its working memory.
 
 ## In progress
 
+- 2026-05-21T20:35:23Z [MAIN] framework gap: missing explicit config default test for Hyperliquid derivatives venue alignment
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 
