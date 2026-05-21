@@ -10,7 +10,6 @@ treats this as its working memory.
 
 ## In progress
 
-- 2026-05-21T19:08:32Z [TEST] TEST: volume profile HVN zones classify as support/resistance around current price
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 
@@ -18,6 +17,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-21T19:09:30Z [TEST] c2ca4c4 TEST: add volume profile HVN behavior test (support below price / resistance above price)
 - 2026-05-21T19:01:15Z [MAIN] be99e6e Replace skipped backtest placeholder with executable behavior tests for walk-forward harness
 - 2026-05-21T18:45:43Z [TEST] 9e2f661 TEST: add trigger behavior test for reclaim/reject confirmation gating
 - 2026-05-21T18:41:52Z [MAIN] 86b057c Enforce Sunday preferred-window boost only after 22:00 UTC per framework timing
