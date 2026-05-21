@@ -12,12 +12,12 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
-- 2026-05-21T20:44:03Z [TEST] TEST: add direction behavior test (framework supports both long and short setups)
 
 ---
 
 ## Done
 
+- 2026-05-21T20:44:51Z [TEST] f1ed424 TEST: add direction behavior test (framework supports both long and short setups)
 - 2026-05-21T20:35:59Z [MAIN] 47b4223 add explicit config default test for Hyperliquid derivatives venue alignment
 - 2026-05-21T20:21:32Z [TEST] 3533d5e TEST: add bearish MTF alignment behavior test (daily neutral short requires 12h/8h bearish agreement)
 - 2026-05-21T20:17:03Z [MAIN] 0ac1ec4 add explicit test that default config includes 3d timeframe from Daily/3-Day section
