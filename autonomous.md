@@ -91,12 +91,13 @@ Each cron tick, Hermes performs exactly this:
    ```
    Both must pass. If broken, revert via `git restore` and try smaller.
 
-4. **Commit.** If green and something changed:
+4. **Commit + push.** If green and something changed:
    ```bash
    git add -A
-   git commit -m "autopilot: <one-line summary>"
+   git commit -m "autopilot(<area>): <specific behavior change>"
+   git push origin autopilot
    ```
-   Local only — never push.
+   Must commit and push in the same iteration when staged diff is non-empty.
 
 5. **Log.** Append a line to `~/.hermes/logs/btc_autopilot.log`.
 
