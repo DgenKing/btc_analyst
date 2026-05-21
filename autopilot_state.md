@@ -10,6 +10,7 @@ treats this as its working memory.
 
 ## In progress
 
+- 2026-05-21T17:22:55Z [MAIN] Add unit test for MA cluster coverage including 100 MA per framework
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 
