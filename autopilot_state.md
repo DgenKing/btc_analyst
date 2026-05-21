@@ -12,6 +12,7 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-21T17:56:16Z [TEST] TEST: add tier boundary behavior test (strong >=70 from framework scoring thresholds)
 
 ---
 
