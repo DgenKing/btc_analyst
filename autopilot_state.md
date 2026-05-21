@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-21T23:44:01Z [TEST] 78b6831 TEST: leverage risk control should block setups when funding is crowded in setup direction
+
 - 2026-05-21T23:40:59Z [MAIN] a310268 sanity-check should surface health_status and stale_components in CLI output contract
 
 - 2026-05-21T22:53:16Z [TEST] ddd59e4 TEST: trade-frequency cap should count existing weekly qualified setups before persisting new ones
