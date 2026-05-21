@@ -51,3 +51,28 @@ def test_framework_supports_both_long_and_short_setup_directions():
 
     assert long_ok is True and long_reason is None
     assert short_ok is True and short_reason is None
+
+
+def test_leverage_risk_control_blocks_crowded_funding_same_direction():
+    """Framework rule: use leverage carefully and avoid crowded directional exposure."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    ok, reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="long",
+        zone_score=90,
+        with_weekly_trend=True,
+        funding_extreme_same_direction=True,
+        macro_event_window=False,
+    )
+
+    assert ok is False
+    assert reason == "crowded_funding"
