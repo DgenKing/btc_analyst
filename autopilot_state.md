@@ -9,7 +9,6 @@ treats this as its working memory.
 ---
 
 ## In progress
-- 2026-05-21T20:53:47Z [MAIN] default symbol should align with framework BTC-USDC perpetual pair
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
@@ -17,6 +16,8 @@ treats this as its working memory.
 ---
 
 ## Done
+
+- 2026-05-21T20:53:47Z [MAIN] 7654102 default symbol should align with framework BTC-USDC perpetual pair
 
 - 2026-05-21T20:44:51Z [TEST] f1ed424 TEST: add direction behavior test (framework supports both long and short setups)
 - 2026-05-21T20:35:59Z [MAIN] 47b4223 add explicit config default test for Hyperliquid derivatives venue alignment
