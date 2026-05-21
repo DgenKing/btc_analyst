@@ -166,3 +166,34 @@ def test_weekly_cycle_derisks_thursday_and_friday_before_weekend():
 
     assert wed > thu
     assert thu == fri
+
+
+def test_weekly_cycle_derisks_saturday_equal_to_friday():
+    """Framework weekly cycle: Friday and Saturday share the reduced-exposure bucket."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 80, "medium": 60, "weak": 40},
+            "multipliers": {
+                "range_edge": 1.0,
+                "range_mid": 1.0,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.10,
+                "friday_saturday": 0.85,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    def _mk_zone():
+        z = Zone("BTCUSDT", 100, 101, "support", "horizontal", "4h")
+        z.factors = {"range_edge": True, "horizontal_strength": 1.0}
+        return z
+
+    fri = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 4}).score
+    sat = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 5}).score
+
+    assert sat == fri
