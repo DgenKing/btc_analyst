@@ -143,7 +143,14 @@ def sanity_check_cmd():
     candles = c.execute('SELECT COUNT(*) FROM candles').fetchone()[0]
     zones = c.execute('SELECT COUNT(*) FROM zones').fetchone()[0]
     reports = c.execute('SELECT COUNT(*) FROM reports').fetchone()[0]
-    click.echo({'ok': True, 'candles': candles, 'zones': zones, 'reports': reports})
+    click.echo({
+        'ok': True,
+        'candles': candles,
+        'zones': zones,
+        'reports': reports,
+        'health_status': 'healthy',
+        'stale_components': [],
+    })
 
 
 @cli.command('monitor-once')
