@@ -122,6 +122,8 @@ monitoring:
   stale_crowd_seconds: 21600
   stale_probability_seconds: 21600
   probability_maturity_min_samples: 50
+  asia_reversal_hard_trigger_enabled: true
+  asia_reversal_threshold_pct: 0.6
 
 sentiment:
   enabled: true

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import time
+import subprocess
 from datetime import date, datetime, timezone
 
 try:
@@ -253,9 +254,17 @@ def force_zone_recompute():
     from btc_analyst.zones.registry import upsert_zones
     from btc_analyst.zones.volume_zones import zones_from_profile
     from btc_analyst.zones.cme_gap import detect_cme_gaps
+    from btc_analyst.zones.trendline import detect_trendlines
+    from btc_analyst.zones.liquidity import detect_liquidity_zones
+    from btc_analyst.zones.moving_average import detect_ma_cluster_zones
     c = _conn()
     cfg = load_config()
     v = (cfg.get('data') or {}).get('primary_venue', 'binance_perp')
+    df1h = pd.read_sql_query(
+        "SELECT open_time,open,high,low,close,volume FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1h' ORDER BY open_time",
+        c,
+        params=[v],
+    )
     df4h = pd.read_sql_query(
         "SELECT open_time,open,high,low,close,volume FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='4h' ORDER BY open_time",
         c,
@@ -268,8 +277,33 @@ def force_zone_recompute():
     )
     if df4h.empty:
         return {'ok': False, 'reason': 'no_4h_data'}
-    zs = detect_horizontal_zones(df4h) + zones_from_profile(df4h, timeframe='4h') + detect_cme_gaps(df4h, timeframe='4h')
     close = df4h['close'].astype(float)
+    close_daily = dfd['close'].astype(float) if not dfd.empty else close
+    current_price = float(close_daily.iloc[-1])
+    ma_values = []
+    if len(close_daily) >= 20:
+        ma_values.append(float(close_daily.rolling(20).mean().iloc[-1]))
+    if len(close_daily) >= 50:
+        ma_values.append(float(close_daily.rolling(50).mean().iloc[-1]))
+    if len(close_daily) >= 100:
+        ma_values.append(float(close_daily.rolling(100).mean().iloc[-1]))
+    if len(close_daily) >= 200:
+        ma_values.append(float(close_daily.rolling(200).mean().iloc[-1]))
+
+    zs = (
+        detect_horizontal_zones(df4h)
+        + zones_from_profile(df4h, timeframe='4h')
+        + detect_cme_gaps(df4h, timeframe='4h')
+        + detect_trendlines(df4h, timeframe='4h', cfg=cfg)
+        + detect_liquidity_zones(df1h if not df1h.empty else df4h, current_price=current_price)
+        + detect_ma_cluster_zones(
+            'BTCUSDT',
+            '1d',
+            [v for v in ma_values if v == v],
+            proximity_pct=float((cfg.get('zones') or {}).get('ma_cluster_proximity_pct', 0.5)),
+            current_price=current_price,
+        )
+    )
     ma20 = float(close.rolling(20).mean().iloc[-1]) if len(close) >= 20 else float(close.iloc[-1])
     ma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) >= 50 else ma20
     delta = close.diff()
@@ -331,6 +365,23 @@ def force_zone_recompute():
     return {'ok': True, 'zones': len(zs)}
 
 
+
+def _live_test_count():
+    try:
+        r = subprocess.run(
+            ['.venv/bin/pytest', '-q', '--tb=no'],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        lines = [ln for ln in (r.stdout or '').splitlines() if ln.strip()]
+        if lines:
+            return lines[-1]
+        err = [ln for ln in (r.stderr or '').splitlines() if ln.strip()]
+        return err[-1] if err else f'pytest_exit_code_{r.returncode}'
+    except Exception as e:
+        return f'test_run_failed: {e}'
+
 def sanity_check():
     c = _conn()
     now = int(time.time() * 1000)
@@ -354,6 +405,7 @@ def sanity_check():
         'errors_last_hour': errors,
         'health_status': health.get('health_status'),
         'stale_components': health.get('stale_components', []),
+        'pytest_last_line': _live_test_count(),
     }
 
 
@@ -451,6 +503,45 @@ def system_health_status():
     }
 
 
+
+def _confluence_summary(conn, price: float) -> dict:
+    rows = conn.execute("SELECT price_low, price_high, tier, factors_json FROM zones WHERE status='active' AND tier IN ('medium','strong') ORDER BY score DESC LIMIT 200").fetchall()
+    above = None
+    below = None
+    for pl, ph, _tier, factors_json in rows:
+        mid = (float(pl) + float(ph)) / 2.0
+        if mid >= price and above is None:
+            above = factors_json
+        if mid <= price:
+            below = factors_json
+
+    def labels(blob):
+        if not blob:
+            return 'none'
+        try:
+            f = json.loads(blob or '{}')
+        except Exception:
+            return 'none'
+        keys = []
+        for k, v in f.items():
+            if k in ('score_breakdown', 'active_sessions', 'crowd_positioning_adjustment', 'session_quality_multiplier'):
+                continue
+            if isinstance(v, bool) and v:
+                keys.append(str(k))
+            elif isinstance(v, (int, float)) and float(v) > 0:
+                keys.append(str(k))
+            elif isinstance(v, str) and v:
+                keys.append(str(k))
+        return ' + '.join(keys) if keys else 'none'
+
+    up = labels(above)
+    dn = labels(below)
+    if up == 'none' and dn == 'none':
+        status = 'none - no medium/strong zones bracket price'
+    else:
+        status = None
+    return {'confluence_above': up, 'confluence_below': dn, 'confluence_status': status}
+
 def run_market_monitoring_cycle():
     c = _conn()
     cfg = load_config()
@@ -463,8 +554,9 @@ def run_market_monitoring_cycle():
         try:
             price = float((out.get('snapshot') or {}).get('price'))
             zones = get_zones('all', 'all', 200)
-            fired = run_alert_engine(c, zones, price)
+            fired = run_alert_engine(c, zones, price, cfg=cfg)
             out['internal_alerts_fired'] = len(fired)
+            out['confluence'] = _confluence_summary(c, price)
         except Exception as e:
             out['internal_alerts_error'] = str(e)
             record_pipeline_failure('market_monitoring_cycle', e, {'stage': 'run_alert_engine'})

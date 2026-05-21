@@ -10,21 +10,17 @@ from btc_analyst.setups.filters import apply_hard_filters
 from btc_analyst.setups.reactions import detect_reactions
 from btc_analyst.setups.triggers import detect_trigger
 from btc_analyst.analysis.probability import get_probability_score, get_regime_state
+from btc_analyst.context.sessions import active_sessions
+from btc_analyst.indicators.structure import trend_label
 
 RISK_UNIT_PCT = 1.0
 
 
-def _trend_from_df(df: pd.DataFrame, lookback: int = 10, pct: float = 0.003) -> str:
-    if df is None or df.empty or len(df) < lookback:
-        return 'neutral'
-    a = float(df['close'].iloc[-1])
-    b = float(df['close'].iloc[-lookback])
-    if b <= 0:
-        return 'neutral'
-    ch = (a - b) / b
-    if ch > pct:
+def _trend_from_df(df: pd.DataFrame, timeframe: str) -> str:
+    lbl = trend_label(df, timeframe)
+    if lbl == 'up':
         return 'bull'
-    if ch < -pct:
+    if lbl == 'down':
         return 'bear'
     return 'neutral'
 
@@ -183,51 +179,96 @@ def _latest_4h_indicators(conn, venue: str) -> tuple[float | None, float | None]
     return rsi_val, hist_val
 
 
+def _asia_us_reversal_signal(conn, venue: str, now_utc: datetime, pump_dump_threshold_pct: float = 0.6) -> dict:
+    sessions = active_sessions(now_utc)
+    in_tokyo = 'tokyo' in sessions
+    # We only apply this as a hard trigger around early Asia flow (00:00-04:00 UTC)
+    if not in_tokyo or now_utc.hour > 4:
+        return {'active': False, 'reason': 'outside_asia_reversal_window'}
+
+    d = pd.read_sql_query(
+        "SELECT open_time, close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1h' ORDER BY open_time DESC LIMIT 12",
+        conn,
+        params=[venue],
+    )
+    if d.empty or len(d) < 8:
+        return {'active': False, 'reason': 'insufficient_1h_candles'}
+    d = d.sort_values('open_time').reset_index(drop=True)
+    closes = d['close'].astype(float).tolist()
+    us_move_pct = ((closes[-1] / closes[-7]) - 1.0) * 100.0
+
+    if abs(us_move_pct) < float(pump_dump_threshold_pct):
+        return {
+            'active': False,
+            'reason': 'us_move_below_threshold',
+            'us_move_pct': round(float(us_move_pct), 3),
+            'threshold_pct': float(pump_dump_threshold_pct),
+        }
+
+    expected_direction = 'short' if us_move_pct > 0 else 'long'
+    pattern = 'us_pump_asia_dump' if us_move_pct > 0 else 'us_dump_asia_pump'
+    return {
+        'active': True,
+        'pattern': pattern,
+        'us_move_pct': round(float(us_move_pct), 3),
+        'threshold_pct': float(pump_dump_threshold_pct),
+        'expected_direction': expected_direction,
+    }
+
+
 def _mtf_alignment(conn, direction: str, venue: str) -> tuple[bool, str, float, dict]:
     dfd = pd.read_sql_query(
-        "SELECT open_time,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1d' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='1d' ORDER BY open_time",
         conn,
         params=[venue],
     )
     df12 = pd.read_sql_query(
-        "SELECT open_time,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='12h' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='12h' ORDER BY open_time",
         conn,
         params=[venue],
     )
     df8 = pd.read_sql_query(
-        "SELECT open_time,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='8h' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='8h' ORDER BY open_time",
         conn,
         params=[venue],
     )
     df4 = pd.read_sql_query(
-        "SELECT open_time,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='4h' ORDER BY open_time",
+        "SELECT open_time,high,low,close FROM candles WHERE symbol='BTCUSDT' AND venue=? AND timeframe='4h' ORDER BY open_time",
         conn,
         params=[venue],
     )
 
-    daily = _trend_from_df(dfd, lookback=7, pct=0.004)
-    h12 = _trend_from_df(df12, lookback=8, pct=0.003)
-    h8 = _trend_from_df(df8, lookback=10, pct=0.003)
-    h4 = _trend_from_df(df4, lookback=10, pct=0.002)
+    daily = _trend_from_df(dfd, '1d')
+    h12 = _trend_from_df(df12, '12h')
+    h8 = _trend_from_df(df8, '8h')
+    h4 = _trend_from_df(df4, '4h')
 
     expected = 'bull' if direction == 'long' else 'bear'
+    snap = {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
+
+    if daily == 'neutral':
+        if h12 == expected and h8 == expected:
+            if h4 not in (expected, 'neutral'):
+                return False, '4h_conflict', 0.0, snap
+            return True, 'htf_neutral_with_ltf_align', 0.8, snap
+        return False, 'daily_neutral_no_ltf_align', 0.0, snap
+
     if daily != expected:
-        return False, 'daily_conflict', 0.0, {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
+        return False, 'daily_conflict', 0.0, snap
 
     mid_conflict = (h12 not in (expected, 'neutral')) and (h8 not in (expected, 'neutral'))
     if mid_conflict:
-        return False, 'mid_tf_conflict', 0.0, {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
+        return False, 'mid_tf_conflict', 0.0, snap
 
-    # quality scaling
     mid_aligned = int(h12 == expected) + int(h8 == expected)
     if h4 != expected and h4 != 'neutral':
-        return False, '4h_conflict', 0.0, {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
+        return False, '4h_conflict', 0.0, snap
 
     if mid_aligned == 2 and h4 == expected:
-        return True, 'full_alignment', 1.0, {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
+        return True, 'full_alignment', 1.0, snap
     if mid_aligned >= 1:
-        return True, 'partial_alignment', 0.85, {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
-    return True, 'daily_only_alignment', 0.75, {'daily': daily, 'h12': h12, 'h8': h8, 'h4': h4}
+        return True, 'partial_alignment', 0.85, snap
+    return True, 'daily_only_alignment', 0.75, snap
 
 
 def run_setup_engine(conn, cfg: dict) -> dict:
@@ -261,6 +302,9 @@ def run_setup_engine(conn, cfg: dict) -> dict:
         q_low=float(mon.get('weekend_impulse_low_quantile', 0.25)),
         q_high=float(mon.get('weekend_impulse_high_quantile', 0.75)),
     )
+    asia_reversal_cfg = bool(mon.get('asia_reversal_hard_trigger_enabled', True))
+    asia_reversal_threshold = float(mon.get('asia_reversal_threshold_pct', 0.6))
+    asia_reversal = _asia_us_reversal_signal(conn, venue, now_utc, asia_reversal_threshold)
 
     zones = conn.execute(
         """
@@ -340,6 +384,12 @@ def run_setup_engine(conn, cfg: dict) -> dict:
             continue
 
         direction = "long" if zone["zone_type"] == "support" else "short"
+        if asia_reversal_cfg and asia_reversal.get('active'):
+            expected = str(asia_reversal.get('expected_direction'))
+            if direction != expected:
+                reasons['asia_reversal_direction_mismatch'] = reasons.get('asia_reversal_direction_mismatch', 0) + 1
+                continue
+
         aligned, align_label, align_multiplier, tf_snapshot = _mtf_alignment(conn, direction, venue)
         if not aligned:
             reasons[align_label] = reasons.get(align_label, 0) + 1
@@ -415,7 +465,7 @@ def run_setup_engine(conn, cfg: dict) -> dict:
             )
             is_b = (
                 factor_count >= b_required
-                and align_label in ('full_alignment', 'partial_alignment', 'daily_only_alignment')
+                and align_label in ('full_alignment', 'partial_alignment', 'daily_only_alignment', 'htf_neutral_with_ltf_align')
                 and float(setup['rr_to_t1']) >= float(min_rr)
             )
             if is_a:
@@ -450,6 +500,8 @@ def run_setup_engine(conn, cfg: dict) -> dict:
                 'tf_snapshot': tf_snapshot,
                 'generated_weekday_utc': now_utc.strftime('%A'),
                 'weekend_impulse': weekend_ctx,
+                'asia_reversal': asia_reversal,
+                'asia_reversal_hard_trigger_enabled': asia_reversal_cfg,
                 'probability_soft_gate': probability_soft_gate,
                 'probability_up_count': up_ok,
                 'probability_down_count': dn_ok,
@@ -511,6 +563,8 @@ def run_setup_engine(conn, cfg: dict) -> dict:
         "fallback_all_active_used": fallback_used,
         "timing_quality_current": timing_quality,
         "weekend_impulse": weekend_ctx,
+        "asia_reversal": asia_reversal,
+        "asia_reversal_hard_trigger_enabled": asia_reversal_cfg,
         "probability_soft_gate": probability_soft_gate,
         "probability_up_count": up_ok,
         "probability_down_count": dn_ok,

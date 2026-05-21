@@ -21,7 +21,7 @@ def merge_overlapping_zones(zones):
     zones=sorted(zones,key=lambda z:(z.zone_type,z.price_low))
     out=[]
     for z in zones:
-        if not out or out[-1].zone_type!=z.zone_type or z.price_low>out[-1].price_high:
+        if not out or out[-1].zone_type!=z.zone_type or out[-1].source!=z.source or z.price_low>out[-1].price_high:
             out.append(z); continue
         m=out[-1]; m.price_low=min(m.price_low,z.price_low); m.price_high=max(m.price_high,z.price_high); m.factors={**(m.factors or {}), **(z.factors or {})}
     return out

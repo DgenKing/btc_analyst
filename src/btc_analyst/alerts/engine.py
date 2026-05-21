@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 import json
 
-from .dedupe import dedupe_key
+from .dedupe import dedupe_key, is_duplicate_within
 from .persistence import save_alert
 
 
@@ -153,13 +153,17 @@ def _should_emit_knife_alert(conn, zone_id: int, price: float, min_move_pct: flo
     return True
 
 
-def run_alert_engine(conn, zones, price):
+def run_alert_engine(conn, zones, price, cfg=None):
     fired = []
     state = _latest_market_state(conn)
+    dedupe_window_minutes = int((((cfg or {}).get('alerts') or {}).get('dedupe_window_minutes', 60)))
+    dedupe_window_seconds = max(60, dedupe_window_minutes * 60)
 
     for z in zones:
         if z['price_low'] <= price <= z['price_high']:
-            k = dedupe_key('zone_entry', z['id'], int(price))
+            if is_duplicate_within(conn, 'zone_entry', int(z['id']), dedupe_window_seconds):
+                continue
+            k = dedupe_key('zone_entry', z['id'], int(time.time() // dedupe_window_seconds))
             payload = _build_alert_report(z, float(price), state)
             _emit_alert(conn, z['id'], 'zone_entry', payload, k, fired)
 
@@ -181,9 +185,11 @@ def run_alert_engine(conn, zones, price):
         is_oversold = float(state['rsi_1h']) <= 35.0
         is_shallow_break = 0.0 < breakdown_pct <= 0.8
         if is_oversold and is_shallow_break:
-            if _should_emit_knife_alert(conn, int(nearest['id']), float(price), min_move_pct=0.5, lookback_hours=48):
-                k = dedupe_key('weak_knife_catch_watch', int(nearest['id']), int(time.time() // 900))
+            zone_id = int(nearest['id'])
+            knife_time_dedupe = not is_duplicate_within(conn, 'weak_knife_catch_watch', zone_id, 30 * 60)
+            if knife_time_dedupe and _should_emit_knife_alert(conn, zone_id, float(price), min_move_pct=0.5, lookback_hours=48):
+                k = dedupe_key('weak_knife_catch_watch', zone_id, int(time.time() // 1800))
                 payload = _build_weak_knife_signal(nearest, float(price), state)
-                _emit_alert(conn, int(nearest['id']), 'weak_knife_catch_watch', payload, k, fired)
+                _emit_alert(conn, zone_id, 'weak_knife_catch_watch', payload, k, fired)
 
     return fired

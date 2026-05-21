@@ -17,12 +17,19 @@
 
 agent:
   id: btc_analyst
-  display_name: "BTC Analyst"
+  display_name: "btc_analyst"
   version: "1.0.0"
   description: >
     Bitcoin-only trading analysis assistant. Marks zones, scores confluence,
     detects reactions, generates daily reports and price-based alerts.
     Analysis only — does not place trades.
+  response_style:
+    forbid_openers:
+      - "Perfect"
+      - "Absolutely"
+      - "Great question"
+      - "Got it"
+      - "Understood"
   entrypoint: "btc_analyst.hermes.adapter:register"
   python_executable: "${HERMES_PYTHON:-python3}"
   working_dir: "${BTC_ANALYST_HOME:-/opt/btc_analyst}"
