@@ -12,6 +12,7 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-21T18:01:32Z [MAIN] Add Thursday de-risk multiplier coverage and implementation parity with framework Thu/Fri reduced exposure
 
 ---
 

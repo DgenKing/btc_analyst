@@ -69,7 +69,8 @@ def score_zone(zone,cfg,market_state=None):
     # Monday(0)-Tuesday(1)-Sunday(6) = preferred entry window
     if weekday in (6, 0, 1):
         score *= smt_mult
-    elif weekday in (4, 5):
+    # Thursday-Friday-Saturday = reduced exposure window
+    elif weekday in (3, 4, 5):
         score *= fs_mult
 
     # recency multiplier, modeled from spec bins

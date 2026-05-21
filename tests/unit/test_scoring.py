@@ -133,3 +133,36 @@ def test_acceptance_rejection_invalidation_requires_close_beyond_zone_and_atr_bo
     # Strong body but still inside the zone should not invalidate.
     inside_close = {"open": 101.0, "close": 107.0}
     assert invalidated_by_rule(inside_close, zone, atr4h=4.0) is False
+
+
+def test_weekly_cycle_derisks_thursday_and_friday_before_weekend():
+    """Framework weekly cycle: Thursday/Friday should reduce exposure relative to midweek neutral."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 80, "medium": 60, "weak": 40},
+            "multipliers": {
+                "range_edge": 1.0,
+                "range_mid": 1.0,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.10,
+                "friday_saturday": 0.85,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    def _mk_zone():
+        z = Zone("BTCUSDT", 100, 101, "support", "horizontal", "4h")
+        z.factors = {"range_edge": True, "horizontal_strength": 1.0}
+        return z
+
+    wed = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 2}).score
+    thu = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 3}).score
+    fri = score_zone(_mk_zone(), cfg, {"regime": "range", "weekday": 4}).score
+
+    assert wed > thu
+    assert thu == fri
