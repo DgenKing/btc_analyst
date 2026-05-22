@@ -10,14 +10,13 @@ treats this as its working memory.
 
 ## In progress
 
-- 2026-05-22T10:39:50Z [TEST] TEST: confluence model should score higher when 200 MA joins SR+VP alignment
-
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 ---
 
 ## Done
 
+- 2026-05-22T10:39:50Z [TEST] 66f7206 TEST: confluence model should score higher when 200 MA joins SR+VP alignment
 - 2026-05-22T10:15:23Z [TEST] 510122e TEST: resistance reject trigger should require liquidity sweep above resistance before confirmation
 - 2026-05-22T09:58:31Z [TEST] 64825f7 TEST: enforce support reclaim trigger requires liquidity sweep confirmation when sweep data exists
 - 2026-05-22T09:50:36Z [TEST] 8fbc04c TEST: entry trigger should require liquidity sweep confirmation before reclaim/reject (xfail)
