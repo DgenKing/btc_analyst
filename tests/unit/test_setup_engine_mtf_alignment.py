@@ -83,3 +83,33 @@ def test_mtf_alignment_queries_use_configured_symbol_parameter(monkeypatch):
     for query, params in seen:
         assert "symbol=?" in query
         assert params == ["BTCUSDC", "hyperliquid_perp"]
+
+
+def test_mtf_alignment_rejects_when_mid_timeframes_conflict_with_daily_bias(monkeypatch):
+    """Framework rule: higher-timeframe directional bias still requires 12H/8H confluence; dual mid-TF conflict invalidates setup."""
+
+    def fake_read_sql_query(*args, **kwargs):
+        return pd.DataFrame(
+            [{"open_time": 1, "high": 110.0, "low": 90.0, "close": 100.0}]
+        )
+
+    monkeypatch.setattr(engine.pd, "read_sql_query", fake_read_sql_query)
+
+    seq = iter(["bull", "bear", "bear", "bull"])
+
+    def fake_trend_from_df(_df, _timeframe):
+        return next(seq)
+
+    monkeypatch.setattr(engine, "_trend_from_df", fake_trend_from_df)
+
+    aligned, label, multiplier, snapshot = engine._mtf_alignment(
+        conn=None,
+        direction="long",
+        venue="binance_perp",
+        symbol="BTCUSDC",
+    )
+
+    assert aligned is False
+    assert label == "mid_tf_conflict"
+    assert multiplier == 0.0
+    assert snapshot == {"daily": "bull", "h12": "bear", "h8": "bear", "h4": "bull"}
