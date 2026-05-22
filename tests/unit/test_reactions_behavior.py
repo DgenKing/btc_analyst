@@ -42,3 +42,17 @@ def test_bullish_acceptance_rsi_reclaim_requires_minimum_rsi_at_support():
     # Same location with weaker momentum should not emit RSI-based reclaim.
     weak_momentum = {"open": 100.29, "high": 100.45, "low": 100.285, "close": 100.3}
     assert detect_reactions(weak_momentum, prev_inside, support, rsi=44.9, macd_hist=None) is None
+
+
+def test_short_setup_failure_reclaim_emits_failed_breakout_at_resistance():
+    """Framework rule: short setups should recognize failed reclaim at resistance (failed breakout)."""
+    resistance = {"zone_type": "resistance", "price_low": 108.0, "price_high": 110.0}
+
+    # Prior close above resistance + current close back below resistance => failed reclaim.
+    prev_above = {"open": 110.4, "high": 110.7, "low": 110.2, "close": 110.3}
+    failed_reclaim = {"open": 109.9, "high": 109.95, "low": 109.6, "close": 109.8}
+    assert detect_reactions(failed_reclaim, prev_above, resistance, rsi=None, macd_hist=None) == "failed_breakout"
+
+    # If previous candle was not above resistance, the failed-reclaim signal should not trigger.
+    prev_inside = {"open": 109.8, "high": 109.95, "low": 109.6, "close": 109.9}
+    assert detect_reactions(failed_reclaim, prev_inside, resistance, rsi=None, macd_hist=None) is None
