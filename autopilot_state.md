@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T12:20:43Z [TEST] b27bbff TEST: probability trend signal should stay neutral (no full-trend fire) in flat/choppy MA-equality regime
 - 2026-05-22T11:56:46Z [TEST] 6258e1f TEST: crowded-funding hard filter should block short setups when exposure is crowded
 - 2026-05-22T11:49:53Z [TEST] 2206ceb TEST: probability trend stack should require SMA100 ordering before full bullish/bearish classification
 - 2026-05-22T11:28:25Z [TEST] e88a4fc TEST: POC tie-boundary should deterministically choose lower price bin when bin volumes are equal
