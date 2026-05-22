@@ -33,3 +33,13 @@ def test_weekly_timing_quality_de_risks_thursday_like_friday():
 
     assert thu == ("late_week_window", 0.6)
     assert fri == ("late_week_window", 0.6)
+
+
+def test_weekly_timing_quality_sunday_open_boundary_is_exact_second():
+    """Framework rule: Sunday preferred window starts at 22:00 UTC when futures/liquidity return, not before."""
+    sun_215959 = _weekly_timing_quality(datetime(2026, 5, 24, 21, 59, 59, tzinfo=timezone.utc))
+    sun_220000 = _weekly_timing_quality(datetime(2026, 5, 24, 22, 0, 0, tzinfo=timezone.utc))
+
+    # Should NOT fire preferred-window boost before the exact boundary second.
+    assert sun_215959 == ("midweek_window", 0.8)
+    assert sun_220000 == ("optimal_window", 1.0)
