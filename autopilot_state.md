@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T13:38:30Z [TEST] 7619677 TEST: scoring tier boundaries should classify medium/weak/noise exactly at configured thresholds
+
 - 2026-05-22T13:13:04Z [TEST] 75a9117 TEST: crowded-funding hard filter should enforce symmetric pass/block behavior for long setups
 - 2026-05-22T12:45:51Z [TEST] bf58348 TEST: MA cluster should preserve 20/50/100/200 strength mapping when some MA inputs are missing (incomplete data edge)
 - 2026-05-22T12:20:43Z [TEST] b27bbff TEST: probability trend signal should stay neutral (no full-trend fire) in flat/choppy MA-equality regime
