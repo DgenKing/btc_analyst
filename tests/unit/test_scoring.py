@@ -202,6 +202,39 @@ def test_weekly_cycle_derisks_saturday_equal_to_friday():
     assert sat == fri
 
 
+def test_diagonal_trendline_alone_remains_non_strong_without_horizontal_or_volume_confluence():
+    """Framework rule: diagonal trendline alone is secondary and should not produce a strong setup by itself."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "volume_profile": 20,
+                "market_structure": 15,
+                "ma_confluence": 10,
+                "trendline": 10,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 70, "medium": 50, "weak": 30},
+            "multipliers": {
+                "range_edge": 1.0,
+                "range_mid": 1.0,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.0,
+                "friday_saturday": 1.0,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    trendline_only = Zone("BTCUSDT", 100, 101, "support", "trendline", "4h")
+    trendline_only.factors = {"trendline_strength": 1.0, "range_edge": True}
+
+    scored = score_zone(trendline_only, cfg, {"regime": "range", "weekday": 2})
+
+    assert scored.score == 10.0
+    assert scored.tier != "strong"
+
+
 def test_range_edge_scores_higher_than_range_midpoint_for_same_zone():
     """Framework rule: range boundaries are higher-quality trade locations than mid-range entries."""
     cfg = {
