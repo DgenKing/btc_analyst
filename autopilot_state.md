@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T17:53:51Z [TEST] bdb075c TEST: setup weekly timing should keep Sunday 21:59:59 UTC de-risked and switch to optimal exactly at 22:00:00 UTC
 - 2026-05-22T16:57:50Z [MAIN] e481ba0 add exact-second Sunday futures-open boundary coverage for report weekly window
 - 2026-05-22T15:58:10Z [TEST] 6942ee2 TEST: range-context edge thresholds should treat exactly 10%/90% as strong edge bias while nearby values are weaker
 - 2026-05-22T15:34:54Z [TEST] ba9928b TEST: Sunday weekly-pattern boost boundary should remain off at 21:59:59 UTC and turn on exactly at 22:00:00 UTC
