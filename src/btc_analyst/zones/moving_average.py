@@ -6,7 +6,9 @@ from .registry import Zone
 def detect_ma_cluster_zones(symbol, timeframe, ma_values, proximity_pct=0.5, current_price=None):
     out = []
     strength_by_index = {0: 0.3, 1: 0.5, 2: 0.75, 3: 1.0}
-    for idx, v in enumerate([x for x in ma_values if x == x and x is not None]):
+    for idx, v in enumerate(ma_values):
+        if v is None or v != v:
+            continue
         ma = float(v)
         if current_price is None:
             zone_type = 'support'
