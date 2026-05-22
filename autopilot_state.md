@@ -12,10 +12,11 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
-
 ---
 
 ## Done
+
+- 2026-05-22T05:28:04Z [TEST] b395454 TEST: MTF confluence should reject aligned daily/12h/8h long when 4h momentum conflicts
 
 - 2026-05-22T05:24:00Z [MAIN] a4c6e57 framework gap: probability late-week de-risk should include Thursday directional dampening parity test
 
