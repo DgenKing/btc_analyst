@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T00:54:00Z [TEST] 0d241af TEST: value area bounds (VAL/VAH) should map to directional support/resistance by current price
+
 - 2026-05-22T00:29:06Z [TEST] 6957c66 TEST: macro event risk should block new setups via hard filters
 
 - 2026-05-22T00:06:33Z [TEST] e017e9c TEST: invalid direction should be rejected by hard filters (only long/short allowed)
