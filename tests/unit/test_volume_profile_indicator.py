@@ -18,3 +18,17 @@ def test_poc_tracks_highest_volume_bin_in_profile():
     flipped = compute_profile(closes, volumes[::-1], bins=2)
     expected_low_bin_poc = (100.0 + 105.5) / 2
     assert flipped["poc"] == expected_low_bin_poc
+
+
+def test_poc_tie_boundary_prefers_lower_bin_deterministically():
+    """Framework edge rule: at equal-volume bin boundaries, POC must resolve deterministically and avoid jumping to higher resistance by default."""
+    closes = np.array([100.0, 101.0, 102.0, 109.0, 110.0, 111.0], dtype=float)
+    volumes = np.array([10.0, 10.0, 10.0, 10.0, 10.0, 10.0], dtype=float)
+
+    profile = compute_profile(closes, volumes, bins=2)
+
+    low_bin_poc = (100.0 + 105.5) / 2
+    high_bin_poc = (105.5 + 111.0) / 2
+
+    assert profile["poc"] == low_bin_poc
+    assert profile["poc"] != high_bin_poc
