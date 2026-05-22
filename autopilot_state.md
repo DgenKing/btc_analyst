@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T01:17:18Z [TEST] b1bf45a TEST: range-trading context should score range lows as support bias and highs as resistance bias
+
 - 2026-05-22T00:54:00Z [TEST] 0d241af TEST: value area bounds (VAL/VAH) should map to directional support/resistance by current price
 
 - 2026-05-22T00:29:06Z [TEST] 6957c66 TEST: macro event risk should block new setups via hard filters
