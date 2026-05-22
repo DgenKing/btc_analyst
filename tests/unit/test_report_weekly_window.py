@@ -62,3 +62,17 @@ def test_weekly_trading_window_keeps_wednesday_manage_selective_not_optimal():
     assert "Midweek" in detail
     assert color == "amber"
     assert label != "Optimal entry window"
+
+
+def test_weekly_trading_window_sunday_open_boundary_is_exact_to_the_second():
+    """Framework rule: Sunday should remain selective until 21:59:59 UTC, then flip optimal at exactly 22:00:00 UTC."""
+    sunday_preopen = datetime(2026, 5, 24, 21, 59, 59, tzinfo=timezone.utc)
+    sunday_open = datetime(2026, 5, 24, 22, 0, 0, tzinfo=timezone.utc)
+
+    preopen_label, _, preopen_color = _weekly_trading_window(sunday_preopen)
+    open_label, _, open_color = _weekly_trading_window(sunday_open)
+
+    assert preopen_label == "Manage/selective window"
+    assert preopen_color == "amber"
+    assert open_label == "Optimal entry window"
+    assert open_color == "green"
