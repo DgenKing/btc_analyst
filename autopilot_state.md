@@ -12,6 +12,7 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+- 2026-05-22T03:47:01Z [TEST] TEST: current-range detection should reject distant boundaries (>10%) to avoid forced mid-range framing
 ---
 
 ## Done
