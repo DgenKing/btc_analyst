@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T04:09:58Z [MAIN] 5e813fd framework gap: probability directional weekday boost should include Monday alongside Tuesday preferred window
+
 - 2026-05-22T03:49:28Z [MAIN] 6bfdf02 framework gap: probability weekly pattern should not boost Sunday before 22:00 UTC futures open
 
 - 2026-05-22T03:47:44Z [TEST] 038df5e TEST: current-range detection should reject distant boundaries (>10%) to avoid forced mid-range framing
