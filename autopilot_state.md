@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T07:28:33Z [TEST] 77eb383 TEST: report weekly window should gate Sunday optimal label until 22:00 UTC (xfail)
+
 - 2026-05-22T07:13:22Z [TEST] 49b65d2 TEST: long setup framework should detect failed breakdown reclaim at support
 
 - 2026-05-22T06:42:00Z [TEST] ddd0c33 TEST: Short setup framework should detect failed reclaim (failed breakout) at resistance
