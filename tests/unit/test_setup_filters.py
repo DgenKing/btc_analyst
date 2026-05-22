@@ -124,3 +124,36 @@ def test_macro_event_window_blocks_new_setup_even_when_other_filters_pass():
 
     assert ok is False
     assert reason == "macro_event_window"
+
+
+def test_atr_daily_risk_bounds_reject_setups_outside_allowed_volatility_window():
+    """Framework rule: controlled risk requires volatility to stay inside configured ATR bounds before entry."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    too_hot_ok, too_hot_reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=5.1,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+    )
+    assert too_hot_ok is False
+    assert too_hot_reason == "atr_too_high"
+
+    too_cold_ok, too_cold_reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=0.9,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+    )
+    assert too_cold_ok is False
+    assert too_cold_reason == "atr_too_low"
