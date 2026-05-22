@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T14:25:07Z [TEST] 66e2221 TEST: Thursday should be de-risked (late_week_window) in setup timing quality, not midweek (xfail)
+
 - 2026-05-22T14:02:27Z [TEST] f32b4e1 TEST: report weekly cycle should map Wednesday to manage/selective (not optimal entry)
 - 2026-05-22T13:38:30Z [TEST] 7619677 TEST: scoring tier boundaries should classify medium/weak/noise exactly at configured thresholds
 
