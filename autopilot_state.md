@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T06:42:00Z [TEST] ddd0c33 TEST: Short setup framework should detect failed reclaim (failed breakout) at resistance
+
 - 2026-05-22T06:20:04Z [MAIN] 3649dc3 framework gap: Saturday weekly window should be observation-only, not exit/review
 
 - 2026-05-22T06:15:27Z [TEST] 0200a42 TEST: Friday/weekend strategy maps Friday to exit/review close-out window
