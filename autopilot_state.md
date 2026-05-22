@@ -10,6 +10,8 @@ treats this as its working memory.
 
 ## In progress
 
+- 2026-05-22T10:39:50Z [TEST] TEST: confluence model should score higher when 200 MA joins SR+VP alignment
+
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 ---

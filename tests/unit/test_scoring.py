@@ -264,3 +264,42 @@ def test_range_edge_scores_higher_than_range_midpoint_for_same_zone():
     mid = score_zone(_mk_zone(False), cfg, {"regime": "range", "weekday": 2}).score
 
     assert edge > mid
+
+
+def test_confluence_strength_increases_when_200ma_joins_sr_and_volume_alignment():
+    """Framework rule: strongest setups are confluence-driven; adding 200 MA to SR+VP should increase score."""
+    cfg = {
+        "scoring": {
+            "weights": {
+                "horizontal_sr": 25,
+                "volume_profile": 20,
+                "ma_confluence": 10,
+                "crowd_positioning_extreme": 0,
+            },
+            "tier_thresholds": {"strong": 80, "medium": 60, "weak": 40},
+            "multipliers": {
+                "range_edge": 1.0,
+                "range_mid": 1.0,
+                "weekend": 1.0,
+                "sunday_monday_tuesday": 1.0,
+                "friday_saturday": 1.0,
+            },
+            "session_quality_weight": 0,
+        }
+    }
+
+    base = Zone("BTCUSDT", 100, 101, "support", "vp_hvn", "4h")
+    base.factors = {"horizontal_strength": 1.0, "vp_strength": 1.0, "range_edge": True}
+
+    with_ma = Zone("BTCUSDT", 100, 101, "support", "ma_cluster", "4h")
+    with_ma.factors = {
+        "horizontal_strength": 1.0,
+        "vp_strength": 1.0,
+        "ma_strength": 1.0,  # 200 MA macro-trend confluence
+        "range_edge": True,
+    }
+
+    base_score = score_zone(base, cfg, {"regime": "range", "weekday": 2}).score
+    confluence_score = score_zone(with_ma, cfg, {"regime": "range", "weekday": 2}).score
+
+    assert confluence_score > base_score
