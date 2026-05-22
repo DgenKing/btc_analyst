@@ -22,3 +22,14 @@ def test_signal_trend_does_not_mark_bearish_stack_without_sma100_ordering():
     close = [80.0] * 100 + [260.0] * 50 + list(np.linspace(140.0, 60.0, 50))
     score = _signal_trend(_df_from_close(close))
     assert score == -0.35
+
+
+def test_signal_trend_stays_neutral_in_flat_ma_equality_regime():
+    # Framework parity: in choppy/sideways conditions, trend stack should not "force"
+    # a directional full-trend signal when all major MAs are equal.
+    close = [100.0] * 220
+    score = _signal_trend(_df_from_close(close))
+
+    # Should NOT fire full-trend classification in either direction.
+    assert score not in (0.9, -0.9)
+    assert score == 0.0
