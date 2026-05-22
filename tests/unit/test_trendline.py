@@ -24,3 +24,17 @@ def test_trendline_returns_empty_on_flat_noise():
     cfg = {'zones': {'trendline': {'min_touches': 3, 'min_r2': 0.85, 'max_slope_degrees': 60}}}
     zones = detect_trendlines(df, timeframe='4h', cfg=cfg)
     assert len(zones) == 0
+
+
+def test_trendline_detects_resistance_on_descending_structure():
+    """Framework Diagonal Trendlines: descending structure should produce resistance trendline zone."""
+    n = 120
+    base = [220 - i * 0.45 for i in range(n)]
+    highs = [v + (0.7 if i % 5 == 0 else 0.35) for i, v in enumerate(base)]
+    lows = [v - (0.6 if i % 6 == 0 else 0.3) for i, v in enumerate(base)]
+    closes = [v + (0.1 if i % 2 == 0 else -0.1) for i, v in enumerate(base)]
+    df = pd.DataFrame({'open_time': list(range(n)), 'high': highs, 'low': lows, 'close': closes})
+    cfg = {'zones': {'trendline': {'min_touches': 3, 'min_r2': 0.5, 'max_slope_degrees': 60}}}
+    zones = detect_trendlines(df, timeframe='4h', cfg=cfg)
+
+    assert any(z.zone_type == 'resistance' for z in zones)
