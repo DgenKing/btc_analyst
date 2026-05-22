@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from btc_analyst.analysis.probability import _signal_weekly_pattern
+from btc_analyst.analysis.probability import _score_probs, _signal_weekly_pattern
 
 
 def test_probability_weekly_pattern_prefers_sunday_monday_tuesday_and_derisks_saturday():
@@ -35,3 +35,20 @@ def test_probability_weekly_pattern_gates_sunday_until_2200_utc_open():
 
     assert preopen == 0.0
     assert open_window > 0.0
+
+
+def test_probability_score_probs_applies_preferred_window_directional_boost_on_monday_and_tuesday():
+    """Framework parity: preferred directional window is Sunday(post-open)/Monday/Tuesday, not Tuesday-only."""
+
+    signal_vals = {"trend": 0.4, "weekly_pattern": 0.2}
+    weights = {"trend": 0.7, "weekly_pattern": 0.3}
+
+    monday_probs, _ = _score_probs(signal_vals, weights, weekday=0)
+    tuesday_probs, _ = _score_probs(signal_vals, weights, weekday=1)
+    wednesday_probs, _ = _score_probs(signal_vals, weights, weekday=2)
+
+    assert monday_probs["up"] > wednesday_probs["up"]
+    assert monday_probs["sideways"] < wednesday_probs["sideways"]
+
+    assert tuesday_probs["up"] > wednesday_probs["up"]
+    assert tuesday_probs["sideways"] < wednesday_probs["sideways"]

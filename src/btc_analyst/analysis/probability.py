@@ -298,7 +298,8 @@ def _score_probs(signal_vals: dict[str, float], weights: dict[str, float], weekd
         sd += w * dn
         ss += w * sw
         breakdown[k] = {'signal': float(s), 'weight': w, 'up': w * up, 'down': w * dn, 'sideways': w * sw}
-    if weekday in (1,):
+    # Framework preferred directional window includes Monday and Tuesday.
+    if weekday in (0, 1):
         su, sd = su * 1.15, sd * 1.15
     if weekday in (5, 6):
         ss = ss * 1.2
