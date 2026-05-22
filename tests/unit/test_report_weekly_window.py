@@ -50,3 +50,15 @@ def test_weekly_trading_window_marks_thursday_as_exit_review_derisk_phase():
     assert label == "Exit/review window"
     assert "Thursday/Friday" in detail
     assert color == "red"
+
+
+def test_weekly_trading_window_keeps_wednesday_manage_selective_not_optimal():
+    """Framework rule: Wednesday remains manage/selective and should NOT be treated as an optimal entry window."""
+    wednesday = datetime(2026, 5, 27, 12, 0, tzinfo=timezone.utc)
+
+    label, detail, color = _weekly_trading_window(wednesday)
+
+    assert label == "Manage/selective window"
+    assert "Midweek" in detail
+    assert color == "amber"
+    assert label != "Optimal entry window"
