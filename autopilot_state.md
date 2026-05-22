@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T07:59:09Z [TEST] fa06ef6 TEST: horizontal level strength should increase with repeated historical touches
 - 2026-05-22T07:36:15Z [MAIN] c2048cc framework gap: report weekly window should gate Sunday optimal label until 22:00 UTC
 
 - 2026-05-22T07:28:33Z [TEST] 77eb383 TEST: report weekly window should gate Sunday optimal label until 22:00 UTC (xfail)
