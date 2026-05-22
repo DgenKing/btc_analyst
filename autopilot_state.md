@@ -10,13 +10,13 @@ treats this as its working memory.
 
 ## In progress
 
-- 2026-05-22T01:40:22Z [MAIN] probability weekly pattern should align with framework Sunday/Monday/Tuesday preferred window
-
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 ---
 
 ## Done
+
+- 2026-05-22T01:40:22Z [MAIN] f9a8fe0 probability weekly pattern should align with framework Sunday/Monday/Tuesday preferred window
 
 - 2026-05-22T01:17:18Z [TEST] b1bf45a TEST: range-trading context should score range lows as support bias and highs as resistance bias
 
