@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T03:49:28Z [MAIN] 6bfdf02 framework gap: probability weekly pattern should not boost Sunday before 22:00 UTC futures open
+
 - 2026-05-22T03:47:44Z [TEST] 038df5e TEST: current-range detection should reject distant boundaries (>10%) to avoid forced mid-range framing
 
 - 2026-05-22T03:22:39Z [TEST] 2fb5569 TEST: MTF confluence should reject long setups when both 12h and 8h conflict with bullish daily bias
