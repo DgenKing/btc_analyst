@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T00:06:33Z [TEST] e017e9c TEST: invalid direction should be rejected by hard filters (only long/short allowed)
+
 - 2026-05-21T23:44:01Z [TEST] 78b6831 TEST: leverage risk control should block setups when funding is crowded in setup direction
 
 - 2026-05-21T23:40:59Z [MAIN] a310268 sanity-check should surface health_status and stale_components in CLI output contract
