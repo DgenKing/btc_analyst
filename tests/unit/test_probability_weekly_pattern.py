@@ -65,3 +65,16 @@ def test_probability_score_probs_derisks_friday_toward_sideways_vs_midweek():
 
     assert friday_probs["sideways"] > wednesday_probs["sideways"]
     assert friday_probs["up"] < wednesday_probs["up"]
+
+
+def test_probability_score_probs_derisks_thursday_toward_sideways_vs_midweek():
+    """Framework rule: Thursday/Friday should reduce exposure and avoid forcing directional setups."""
+
+    signal_vals = {"trend": 0.4, "weekly_pattern": 0.2}
+    weights = {"trend": 0.7, "weekly_pattern": 0.3}
+
+    thursday_probs, _ = _score_probs(signal_vals, weights, weekday=3)
+    wednesday_probs, _ = _score_probs(signal_vals, weights, weekday=2)
+
+    assert thursday_probs["sideways"] > wednesday_probs["sideways"]
+    assert thursday_probs["up"] < wednesday_probs["up"]
