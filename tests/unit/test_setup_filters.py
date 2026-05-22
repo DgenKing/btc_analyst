@@ -190,3 +190,25 @@ def test_atr_daily_risk_bounds_reject_setups_outside_allowed_volatility_window()
     )
     assert too_cold_ok is False
     assert too_cold_reason == "atr_too_low"
+
+    at_min_ok, at_min_reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=1.0,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+    )
+    assert at_min_ok is True
+    assert at_min_reason is None
+
+    at_max_ok, at_max_reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=5.0,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+    )
+    assert at_max_ok is True
+    assert at_max_reason is None
