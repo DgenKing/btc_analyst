@@ -28,3 +28,17 @@ def test_bearish_rejection_rsi_signal_requires_weak_momentum_threshold():
     # Same location but stronger momentum should not emit bearish RSI rejection.
     stronger_momentum = {"open": 109.85, "high": 109.95, "low": 109.7, "close": 109.9}
     assert detect_reactions(stronger_momentum, prev_inside, resistance, rsi=56.0, macd_hist=None) is None
+
+
+def test_bullish_acceptance_rsi_reclaim_requires_minimum_rsi_at_support():
+    """Framework rule: bullish acceptance should require reclaim-strength momentum at support."""
+    support = {"zone_type": "support", "price_low": 100.0, "price_high": 102.0}
+    prev_inside = {"open": 100.4, "high": 100.8, "low": 100.2, "close": 100.5}
+
+    # Near support with reclaim-strength momentum should emit RSI-based bullish reclaim.
+    reclaim_momentum = {"open": 100.29, "high": 100.45, "low": 100.285, "close": 100.3}
+    assert detect_reactions(reclaim_momentum, prev_inside, support, rsi=45.0, macd_hist=None) == "rsi_reclaim"
+
+    # Same location with weaker momentum should not emit RSI-based reclaim.
+    weak_momentum = {"open": 100.29, "high": 100.45, "low": 100.285, "close": 100.3}
+    assert detect_reactions(weak_momentum, prev_inside, support, rsi=44.9, macd_hist=None) is None
