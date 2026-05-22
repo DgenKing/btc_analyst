@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T02:58:52Z [TEST] 4fe6a47 TEST: diagonal trendline should produce resistance zone on descending swing-high structure
+
 - 2026-05-22T02:55:15Z [MAIN] f742572 enforce minimum RR hard filter reason parity via behavior test
 
 - 2026-05-22T02:34:39Z [TEST] 3114808 TEST: setup tiering should keep B setups pending until A-lockout window expires
