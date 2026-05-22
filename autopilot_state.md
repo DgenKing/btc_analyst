@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T11:04:51Z [TEST] 916f78f TEST: trade-frequency cap boundary should block second new setup when one weekly setup already exists
 - 2026-05-22T10:39:50Z [TEST] 66f7206 TEST: confluence model should score higher when 200 MA joins SR+VP alignment
 - 2026-05-22T10:15:23Z [TEST] 510122e TEST: resistance reject trigger should require liquidity sweep above resistance before confirmation
 - 2026-05-22T09:58:31Z [TEST] 64825f7 TEST: enforce support reclaim trigger requires liquidity sweep confirmation when sweep data exists
