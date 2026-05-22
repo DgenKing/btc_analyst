@@ -78,3 +78,16 @@ def test_probability_score_probs_derisks_thursday_toward_sideways_vs_midweek():
 
     assert thursday_probs["sideways"] > wednesday_probs["sideways"]
     assert thursday_probs["up"] < wednesday_probs["up"]
+
+
+def test_probability_score_probs_saturday_is_more_defensive_than_friday():
+    """Framework rule: Saturday is observation-only, so weekend scoring should bias more to sideways than Friday de-risk mode."""
+
+    signal_vals = {"trend": 0.4, "weekly_pattern": 0.2}
+    weights = {"trend": 0.7, "weekly_pattern": 0.3}
+
+    friday_probs, _ = _score_probs(signal_vals, weights, weekday=4)
+    saturday_probs, _ = _score_probs(signal_vals, weights, weekday=5)
+
+    assert saturday_probs["sideways"] > friday_probs["sideways"]
+    assert saturday_probs["up"] < friday_probs["up"]
