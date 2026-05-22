@@ -1,6 +1,39 @@
 from btc_analyst.setups.filters import apply_hard_filters
 
 
+def test_min_rr_filter_rejects_setups_below_threshold():
+    """Framework rule: only high-probability setups with sufficient reward/risk should be tradable."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    low_rr_ok, low_rr_reason = apply_hard_filters(
+        rr_t1=1.49,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+    )
+    assert low_rr_ok is False
+    assert low_rr_reason == "rr_below_min"
+
+    threshold_ok, threshold_reason = apply_hard_filters(
+        rr_t1=1.5,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+    )
+    assert threshold_ok is True
+    assert threshold_reason is None
+
+
 def test_counter_trend_setup_requires_high_conviction_score_threshold():
     """Framework rule: leverage is only for high-conviction setups with strong confluence."""
     cfg = {
