@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T03:22:39Z [TEST] 2fb5569 TEST: MTF confluence should reject long setups when both 12h and 8h conflict with bullish daily bias
+
 - 2026-05-22T03:12:48Z [MAIN] c4d37a0 add ATR boundary-pass behavior test for equality at min/max thresholds
 
 - 2026-05-22T02:58:52Z [TEST] 4fe6a47 TEST: diagonal trendline should produce resistance zone on descending swing-high structure
