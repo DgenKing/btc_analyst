@@ -12,11 +12,12 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
-- 2026-05-22T04:59:58Z [TEST] TEST: weekly cycle should de-risk Friday directional probability vs midweek
 
 ---
 
 ## Done
+
+- 2026-05-22T05:01:25Z [TEST] 8913f23 TEST: weekly cycle should de-risk Friday directional probability vs midweek
 
 - 2026-05-22T04:27:27Z [MAIN] 1627a7a framework gap: setup trade-frequency cap should honor config key max_trades_per_week
 
