@@ -12,9 +12,12 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
+
 ---
 
 ## Done
+
+- 2026-05-22T04:27:27Z [MAIN] 1627a7a framework gap: setup trade-frequency cap should honor config key max_trades_per_week
 
 - 2026-05-22T04:14:21Z [TEST] a9a1c35 TEST: bullish acceptance RSI reclaim should require RSI >= 45 at support
 
