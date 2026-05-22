@@ -113,3 +113,33 @@ def test_mtf_alignment_rejects_when_mid_timeframes_conflict_with_daily_bias(monk
     assert label == "mid_tf_conflict"
     assert multiplier == 0.0
     assert snapshot == {"daily": "bull", "h12": "bear", "h8": "bear", "h4": "bull"}
+
+
+def test_mtf_alignment_rejects_when_4h_conflicts_even_if_daily_and_mid_timeframes_align(monkeypatch):
+    """Framework rule: MTF confluence requires execution-timeframe (4H) confirmation, not just daily/12H/8H agreement."""
+
+    def fake_read_sql_query(*args, **kwargs):
+        return pd.DataFrame(
+            [{"open_time": 1, "high": 110.0, "low": 90.0, "close": 100.0}]
+        )
+
+    monkeypatch.setattr(engine.pd, "read_sql_query", fake_read_sql_query)
+
+    seq = iter(["bull", "bull", "bull", "bear"])
+
+    def fake_trend_from_df(_df, _timeframe):
+        return next(seq)
+
+    monkeypatch.setattr(engine, "_trend_from_df", fake_trend_from_df)
+
+    aligned, label, multiplier, snapshot = engine._mtf_alignment(
+        conn=None,
+        direction="long",
+        venue="binance_perp",
+        symbol="BTCUSDC",
+    )
+
+    assert aligned is False
+    assert label == "4h_conflict"
+    assert multiplier == 0.0
+    assert snapshot == {"daily": "bull", "h12": "bull", "h8": "bull", "h4": "bear"}
