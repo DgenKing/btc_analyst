@@ -39,3 +39,14 @@ def test_weekly_trading_window_gates_sunday_optimal_label_until_2200_utc():
     assert preopen_color == "amber"
     assert open_label == "Optimal entry window"
     assert open_color == "green"
+
+
+def test_weekly_trading_window_marks_thursday_as_exit_review_derisk_phase():
+    """Framework rule: Thursday/Friday should shift to close-out behavior and avoid fresh marginal entries."""
+    thursday = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
+
+    label, detail, color = _weekly_trading_window(thursday)
+
+    assert label == "Exit/review window"
+    assert "Thursday/Friday" in detail
+    assert color == "red"
