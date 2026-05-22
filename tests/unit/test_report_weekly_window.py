@@ -27,7 +27,6 @@ def test_weekly_trading_window_marks_saturday_as_observation_only():
     assert color == "red"
 
 
-@pytest.mark.xfail(reason="Framework Sunday (10 PM GMT) timing not yet enforced in report weekly-window helper", strict=True)
 def test_weekly_trading_window_gates_sunday_optimal_label_until_2200_utc():
     """Framework rule: Sunday setup/decision window starts when futures liquidity returns (~22:00 UTC)."""
     sunday_preopen = datetime(2026, 5, 24, 21, 59, tzinfo=timezone.utc)
