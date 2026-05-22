@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T14:47:28Z [TEST] b86a8a7 TEST: counter-trend hard filter should enforce the same >=85 conviction threshold for short setups
+
 - 2026-05-22T14:39:00Z [MAIN] 8ed0f24 close xfail gap: Thursday should be de-risked in setup weekly timing quality
 - 2026-05-22T14:25:07Z [TEST] 66e2221 TEST: Thursday should be de-risked (late_week_window) in setup timing quality, not midweek (xfail)
 
