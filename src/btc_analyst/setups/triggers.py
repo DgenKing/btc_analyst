@@ -10,6 +10,9 @@ def detect_trigger(candle, zone, reaction):
         return "4h_close_reclaim"
 
     if zone["zone_type"] == "resistance" and candle["close"] <= zone["price_high"]:
+        sweep_high = candle.get("high")
+        if sweep_high is not None and sweep_high <= zone["price_high"]:
+            return None
         return "4h_close_reject"
 
     return None

@@ -16,6 +16,19 @@ def test_trigger_requires_liquidity_sweep_confirmation_before_support_reclaim():
     assert detect_trigger(candle_with_sweep, support, reaction=True) == "4h_close_reclaim"
 
 
+def test_trigger_requires_liquidity_sweep_confirmation_before_resistance_reject():
+    """Framework rule: 1H entry should include a liquidity sweep before confirming a resistance reject trigger."""
+    resistance = {"zone_type": "resistance", "price_low": 108.0, "price_high": 110.0}
+
+    candle_without_sweep = {"open": 109.2, "high": 109.8, "low": 108.9, "close": 109.7}
+    candle_with_sweep = {"open": 110.4, "high": 110.6, "low": 109.1, "close": 109.8}
+
+    # Without a sweep above resistance, reject trigger should stay inactive.
+    assert detect_trigger(candle_without_sweep, resistance, reaction=True) is None
+    # With a sweep above resistance and close rejected back below, trigger can activate.
+    assert detect_trigger(candle_with_sweep, resistance, reaction=True) == "4h_close_reject"
+
+
 def test_trigger_requires_reaction_and_structure_confirmation_by_zone_type():
     """Framework rule: long needs support reclaim and short needs resistance rejection after reaction confirmation."""
     support = {"zone_type": "support", "price_low": 100.0, "price_high": 102.0}
