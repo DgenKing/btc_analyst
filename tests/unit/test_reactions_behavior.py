@@ -56,3 +56,17 @@ def test_short_setup_failure_reclaim_emits_failed_breakout_at_resistance():
     # If previous candle was not above resistance, the failed-reclaim signal should not trigger.
     prev_inside = {"open": 109.8, "high": 109.95, "low": 109.6, "close": 109.9}
     assert detect_reactions(failed_reclaim, prev_inside, resistance, rsi=None, macd_hist=None) is None
+
+
+def test_long_setup_failed_breakdown_reclaim_emits_signal_at_support():
+    """Framework rule: long setups should recognize reclaim after failed breakdown at support."""
+    support = {"zone_type": "support", "price_low": 100.0, "price_high": 102.0}
+
+    # Prior close below support + current close back above support => failed breakdown reclaim.
+    prev_below = {"open": 99.7, "high": 99.9, "low": 99.5, "close": 99.8}
+    failed_breakdown_reclaim = {"open": 100.1, "high": 100.3, "low": 100.05, "close": 100.2}
+    assert detect_reactions(failed_breakdown_reclaim, prev_below, support, rsi=None, macd_hist=None) == "failed_breakdown"
+
+    # If previous candle was not below support, the failed-breakdown signal should not trigger.
+    prev_inside = {"open": 100.1, "high": 100.3, "low": 100.0, "close": 100.1}
+    assert detect_reactions(failed_breakdown_reclaim, prev_inside, support, rsi=None, macd_hist=None) is None
