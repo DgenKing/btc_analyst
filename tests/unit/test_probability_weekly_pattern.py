@@ -37,6 +37,21 @@ def test_probability_weekly_pattern_gates_sunday_until_2200_utc_open():
     assert open_window > 0.0
 
 
+def test_probability_weekly_pattern_sunday_boost_flips_exactly_at_220000_utc_boundary():
+    """Framework rule: Sunday preferred-window boost must stay off before 22:00:00 UTC and activate at the exact open boundary."""
+
+    preopen_last_second_ts = int(datetime(2026, 5, 24, 21, 59, 59, tzinfo=timezone.utc).timestamp())
+    open_exact_ts = int(datetime(2026, 5, 24, 22, 0, 0, tzinfo=timezone.utc).timestamp())
+
+    preopen_last_second = _signal_weekly_pattern(preopen_last_second_ts)
+    open_exact = _signal_weekly_pattern(open_exact_ts)
+
+    # Should NOT fire before the exact boundary.
+    assert preopen_last_second == 0.0
+    # Should fire at the exact boundary.
+    assert open_exact > 0.0
+
+
 def test_probability_score_probs_applies_preferred_window_directional_boost_on_monday_and_tuesday():
     """Framework parity: preferred directional window is Sunday(post-open)/Monday/Tuesday, not Tuesday-only."""
 
