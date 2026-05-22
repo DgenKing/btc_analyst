@@ -22,3 +22,16 @@ def test_probability_weekly_pattern_prefers_sunday_monday_tuesday_and_derisks_sa
     assert tuesday > 0.0
     assert saturday == 0.0
     assert sunday == monday == tuesday
+
+
+def test_probability_weekly_pattern_gates_sunday_until_2200_utc_open():
+    """Framework timing nuance: Sunday boost starts only when futures/liquidity returns (~22:00 UTC)."""
+
+    sunday_preopen_ts = int(datetime(2026, 5, 24, 21, 59, tzinfo=timezone.utc).timestamp())
+    sunday_open_ts = int(datetime(2026, 5, 24, 22, 0, tzinfo=timezone.utc).timestamp())
+
+    preopen = _signal_weekly_pattern(sunday_preopen_ts)
+    open_window = _signal_weekly_pattern(sunday_open_ts)
+
+    assert preopen == 0.0
+    assert open_window > 0.0

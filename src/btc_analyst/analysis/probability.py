@@ -201,10 +201,13 @@ def _signal_momentum(df: pd.DataFrame) -> float:
 
 
 def _signal_weekly_pattern(ts: int) -> float:
-    wd = time.gmtime(ts).tm_wday
+    g = time.gmtime(ts)
+    wd = g.tm_wday
     if wd == 5:
         return 0.0
-    if wd in (6, 0, 1):
+    if wd == 6:
+        return 0.2 if g.tm_hour >= 22 else 0.0
+    if wd in (0, 1):
         return 0.2
     return 0.0
 
