@@ -301,6 +301,9 @@ def _score_probs(signal_vals: dict[str, float], weights: dict[str, float], weekd
     # Framework preferred directional window includes Monday and Tuesday.
     if weekday in (0, 1):
         su, sd = su * 1.15, sd * 1.15
+    # Framework de-risks into late week (Thu/Fri) and weekend chop.
+    if weekday in (3, 4):
+        ss = ss * 1.1
     if weekday in (5, 6):
         ss = ss * 1.2
     total = max(su + sd + ss, 1e-9)
