@@ -346,7 +346,12 @@ def run_setup_engine(conn, cfg: dict) -> dict:
     reasons: dict[str, int] = {}
     timing_quality, timing_multiplier = _weekly_timing_quality(now_utc)
     trade_frequency_cfg = ((cfg.get('setups') or {}).get('trade_frequency') or {})
-    max_qualified_setups_per_week = int(trade_frequency_cfg.get('max_qualified_setups_per_week', 2))
+    max_qualified_setups_per_week = int(
+        trade_frequency_cfg.get(
+            'max_qualified_setups_per_week',
+            trade_frequency_cfg.get('max_trades_per_week', 2),
+        )
+    )
     week_window_secs = int(trade_frequency_cfg.get('week_window_seconds', 7 * 24 * 3600))
     now_ts = int(now_utc.timestamp())
     week_cutoff_ts = now_ts - week_window_secs
