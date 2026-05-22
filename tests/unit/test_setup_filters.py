@@ -99,3 +99,28 @@ def test_only_long_or_short_directions_are_allowed_by_hard_filters():
 
     assert ok is False
     assert reason == "invalid_direction"
+
+
+def test_macro_event_window_blocks_new_setup_even_when_other_filters_pass():
+    """Framework rule: preserve capital first and avoid forcing exposure in unstable conditions."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    ok, reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="long",
+        zone_score=95,
+        with_weekly_trend=True,
+        funding_extreme_same_direction=False,
+        macro_event_window=True,
+    )
+
+    assert ok is False
+    assert reason == "macro_event_window"
