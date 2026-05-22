@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T06:15:27Z [TEST] 0200a42 TEST: Friday/weekend strategy maps Friday to exit/review close-out window
+
 - 2026-05-22T05:51:39Z [TEST] f17b004 TEST: weekend probability scoring should bias Saturday more sideways than Friday
 
 - 2026-05-22T05:28:04Z [TEST] b395454 TEST: MTF confluence should reject aligned daily/12h/8h long when 4h momentum conflicts
