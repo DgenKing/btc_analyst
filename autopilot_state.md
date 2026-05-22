@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T15:34:54Z [TEST] ba9928b TEST: Sunday weekly-pattern boost boundary should remain off at 21:59:59 UTC and turn on exactly at 22:00:00 UTC
 - 2026-05-22T14:47:28Z [TEST] b86a8a7 TEST: counter-trend hard filter should enforce the same >=85 conviction threshold for short setups
 
 - 2026-05-22T14:39:00Z [MAIN] 8ed0f24 close xfail gap: Thursday should be de-risked in setup weekly timing quality
