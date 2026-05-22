@@ -12,10 +12,11 @@ treats this as its working memory.
 
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
-- 2026-05-22T03:47:01Z [TEST] TEST: current-range detection should reject distant boundaries (>10%) to avoid forced mid-range framing
 ---
 
 ## Done
+
+- 2026-05-22T03:47:44Z [TEST] 038df5e TEST: current-range detection should reject distant boundaries (>10%) to avoid forced mid-range framing
 
 - 2026-05-22T03:22:39Z [TEST] 2fb5569 TEST: MTF confluence should reject long setups when both 12h and 8h conflict with bullish daily bias
 
