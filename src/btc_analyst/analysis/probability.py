@@ -204,9 +204,7 @@ def _signal_weekly_pattern(ts: int) -> float:
     wd = time.gmtime(ts).tm_wday
     if wd == 5:
         return 0.0
-    if wd == 6:
-        return 0.1
-    if wd == 1:
+    if wd in (6, 0, 1):
         return 0.2
     return 0.0
 
