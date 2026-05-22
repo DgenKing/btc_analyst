@@ -10,12 +10,13 @@ treats this as its working memory.
 
 ## In progress
 
-- 2026-05-22T02:34:13Z [TEST] TEST: setup tiering should keep B setups pending until A-lockout window expires
 <!-- Each iteration appends one line here when it starts, removes it when done.
      Format: - YYYY-MM-DDTHH:MM:SSZ [MAIN|TEST] <one-line gap description> -->
 ---
 
 ## Done
+
+- 2026-05-22T02:34:39Z [TEST] 3114808 TEST: setup tiering should keep B setups pending until A-lockout window expires
 
 - 2026-05-22T02:09:17Z [TEST] 75d512d TEST: ATR risk bounds must reject setups when daily volatility is outside configured range
 
