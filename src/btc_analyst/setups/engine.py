@@ -34,7 +34,7 @@ def _weekly_timing_quality(now_utc: datetime) -> tuple[str, float]:
         return ('midweek_window', 0.8)
     if wd in (0, 1):
         return ('optimal_window', 1.0)
-    if wd in (2, 3):
+    if wd == 2:
         return ('midweek_window', 0.8)
     return ('late_week_window', 0.6)
 

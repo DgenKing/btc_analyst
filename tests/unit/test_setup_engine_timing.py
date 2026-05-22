@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-import pytest
-
 from btc_analyst.setups.engine import _weekly_timing_quality
 
 
@@ -22,13 +20,12 @@ def test_weekly_timing_quality_windows_follow_framework_cycle():
     assert tue == ("optimal_window", 1.0)
 
     assert wed == ("midweek_window", 0.8)
-    assert thu == ("midweek_window", 0.8)
+    assert thu == ("late_week_window", 0.6)
 
     assert fri == ("late_week_window", 0.6)
     assert sat == ("late_week_window", 0.6)
 
 
-@pytest.mark.xfail(strict=True, reason="Framework weekly cycle says Thursday/Friday are de-risk windows; setup engine still treats Thursday as midweek.")
 def test_weekly_timing_quality_de_risks_thursday_like_friday():
     """Framework rule: Thursday/Friday reduce exposure before weekend, so Thursday should be late-week window."""
     thu = _weekly_timing_quality(datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc))
