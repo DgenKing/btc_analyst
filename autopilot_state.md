@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T09:58:31Z [TEST] 64825f7 TEST: enforce support reclaim trigger requires liquidity sweep confirmation when sweep data exists
 - 2026-05-22T09:50:36Z [TEST] 8fbc04c TEST: entry trigger should require liquidity sweep confirmation before reclaim/reject (xfail)
 
 - 2026-05-22T09:28:20Z [TEST] d10fdf1 TEST: diagonal trendline alone should not qualify as a strong setup without horizontal/volume confluence
