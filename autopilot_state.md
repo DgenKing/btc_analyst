@@ -16,6 +16,8 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T02:09:17Z [TEST] 75d512d TEST: ATR risk bounds must reject setups when daily volatility is outside configured range
+
 - 2026-05-22T01:45:40Z [TEST] a06239f TEST: POC definition should pick highest-volume price bin as acceptance level
 
 - 2026-05-22T01:40:22Z [MAIN] f9a8fe0 probability weekly pattern should align with framework Sunday/Monday/Tuesday preferred window
