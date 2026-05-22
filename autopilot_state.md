@@ -16,6 +16,7 @@ treats this as its working memory.
 
 ## Done
 
+- 2026-05-22T09:28:20Z [TEST] d10fdf1 TEST: diagonal trendline alone should not qualify as a strong setup without horizontal/volume confluence
 - 2026-05-22T08:57:29Z [TEST] 61d7b43 TEST: Thursday should map to exit/review window in weekly trading cycle
 - 2026-05-22T08:24:06Z [TEST] 29dc23b TEST: B-tier setup should unlock after no-A lockout window elapses
 - 2026-05-22T07:59:09Z [TEST] fa06ef6 TEST: horizontal level strength should increase with repeated historical touches
