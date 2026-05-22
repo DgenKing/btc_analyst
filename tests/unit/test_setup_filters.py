@@ -212,3 +212,38 @@ def test_atr_daily_risk_bounds_reject_setups_outside_allowed_volatility_window()
     )
     assert at_max_ok is True
     assert at_max_reason is None
+
+
+def test_crowded_funding_gate_blocks_short_setups_only_when_same_direction_is_overcrowded():
+    """Framework rule: leverage should be avoided when directional positioning is crowded."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    blocked_ok, blocked_reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="short",
+        zone_score=90,
+        with_weekly_trend=True,
+        funding_extreme_same_direction=True,
+    )
+    assert blocked_ok is False
+    assert blocked_reason == "crowded_funding"
+
+    clear_ok, clear_reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="short",
+        zone_score=90,
+        with_weekly_trend=True,
+        funding_extreme_same_direction=False,
+    )
+    assert clear_ok is True
+    assert clear_reason is None
