@@ -76,3 +76,26 @@ def test_leverage_risk_control_blocks_crowded_funding_same_direction():
 
     assert ok is False
     assert reason == "crowded_funding"
+
+
+def test_only_long_or_short_directions_are_allowed_by_hard_filters():
+    """Framework rule: primary trading direction is long/short only; other directions are invalid."""
+    cfg = {
+        "setups": {
+            "min_rr_t1": 1.5,
+            "atr_daily_max_pct": 5.0,
+            "atr_daily_min_pct": 1.0,
+        }
+    }
+
+    ok, reason = apply_hard_filters(
+        rr_t1=2.0,
+        cfg=cfg,
+        atr_daily_pct=2.0,
+        direction="flat",
+        zone_score=90,
+        with_weekly_trend=True,
+    )
+
+    assert ok is False
+    assert reason == "invalid_direction"
